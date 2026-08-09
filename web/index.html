@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#efe7d7">
+  <meta name="description" content="基于 bazi-engine 的本地八字排盘体验">
+  <title>观象 · 八字排盘</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="paper-noise" aria-hidden="true"></div>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="观象首页">
+      <span class="brand-seal">象</span>
+      <span class="brand-name">观象<small>八字排盘</small></span>
+    </a>
+    <div class="header-note"><i></i> 本地推演 · 数据不出此机</div>
+  </header>
+
+  <main id="top">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="orbit orbit-one" aria-hidden="true"></div>
+      <div class="orbit orbit-two" aria-hidden="true"></div>
+      <div class="hero-copy">
+        <p class="eyebrow">以节气为界 · 观四柱之象</p>
+        <h1 id="hero-title">把一刻生辰，<br><em>展开成时间的纹理。</em></h1>
+        <p class="hero-intro">依立春与节气排定四柱，呈现十神、藏干、纳音、神煞与大运。所有推演均由本地开源引擎完成。</p>
+        <div class="hero-facts" aria-label="引擎能力">
+          <span><strong>30+</strong> 神煞查法</span>
+          <span><strong>2952</strong> 条知识短语</span>
+          <span><strong>真太阳时</strong> 校正</span>
+        </div>
+      </div>
+
+      <form class="birth-card" id="chart-form">
+        <div class="card-heading">
+          <span>请录入生辰</span>
+          <b>命式</b>
+        </div>
+        <label class="field field-wide">
+          <span>公历日期</span>
+          <input id="birth-date" name="date" type="date" min="1900-01-01" max="2099-12-31" value="1990-05-15" required>
+        </label>
+        <div class="field-row">
+          <label class="field">
+            <span>出生时刻</span>
+            <input id="birth-time" name="time" type="time" value="10:30" required>
+          </label>
+          <fieldset class="field gender-field">
+            <legend>性别</legend>
+            <div class="segmented">
+              <label><input type="radio" name="sex" value="1" checked><span>乾造</span></label>
+              <label><input type="radio" name="sex" value="0"><span>坤造</span></label>
+            </div>
+          </fieldset>
+        </div>
+        <label class="field field-wide longitude-field">
+          <span>出生地经度 <button class="text-button" type="button" id="longitude-help" aria-expanded="false">为何需要？</button></span>
+          <div class="longitude-input">
+            <input id="longitude" name="longitude" type="number" min="-180" max="180" step="0.1" value="116.4" required>
+            <small>° E</small>
+          </div>
+          <span class="field-help" id="longitude-hint">用于校正真太阳时；北京 116.4°、上海 121.5°、广州 113.3°、成都 104.1°。</span>
+        </label>
+        <button class="submit-button" type="submit">
+          <span>排定命盘</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </button>
+        <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section class="result-shell" id="result-shell" hidden aria-live="polite">
+      <div class="result-heading reveal">
+        <div>
+          <p class="section-kicker">命盘总览 / CHART</p>
+          <h2 id="chart-title">庚午年 · 四月廿一</h2>
+        </div>
+        <div class="chart-meta" id="chart-meta"></div>
+      </div>
+
+      <div class="chart-stage reveal" id="pillar-chart"></div>
+
+      <section class="summary-grid reveal" aria-label="命盘摘要">
+        <article class="day-master-card">
+          <p>日主 · 命元</p>
+          <div class="day-master-content">
+            <strong id="day-master">庚</strong>
+            <div><b id="day-master-element">阳金</b><span>以日干为我，统观全局</span></div>
+          </div>
+          <div class="mini-facts" id="mini-facts"></div>
+        </article>
+        <article class="element-card">
+          <div class="article-title"><p>五行观测</p><small>含四柱与藏干</small></div>
+          <div id="element-balance" class="element-balance"></div>
+          <p class="card-caption">数量仅作结构展示，不等同于身强弱或喜用神判断。</p>
+        </article>
+        <article class="solar-card">
+          <div class="sun-mark" aria-hidden="true">日</div>
+          <p>真太阳时</p>
+          <div class="solar-time"><span id="solar-original">10:30</span><i></i><strong id="solar-corrected">10:17</strong></div>
+          <p class="correction" id="solar-correction">经度与均时差，共校正 -12.7 分钟</p>
+        </article>
+      </section>
+
+      <section class="content-section reveal" id="relations-section">
+        <div class="section-heading">
+          <div><p class="section-kicker">气的牵引 / RELATIONS</p><h2>刑冲合会</h2></div>
+          <p>四柱之间的结合、冲动与会聚关系</p>
+        </div>
+        <div class="relation-list" id="relation-list"></div>
+      </section>
+
+      <section class="content-section reveal">
+        <div class="section-heading">
+          <div><p class="section-kicker">十年一章 / CYCLES</p><h2>大运流转</h2></div>
+          <p id="cycle-note">起运 7 岁 · 左右滑动查看</p>
+        </div>
+        <div class="cycle-track-wrap">
+          <div class="cycle-track" id="cycle-track"></div>
+        </div>
+      </section>
+
+      <section class="dual-section reveal">
+        <div class="content-section shensha-section">
+          <div class="section-heading compact">
+            <div><p class="section-kicker">星曜标记 / SYMBOLS</p><h2>神煞</h2></div>
+            <span class="count-badge" id="shensha-count">0</span>
+          </div>
+          <div class="symbol-list" id="symbol-list"></div>
+        </div>
+        <div class="content-section analysis-section">
+          <div class="section-heading compact">
+            <div><p class="section-kicker">古籍断语 / NOTES</p><h2>命理札记</h2></div>
+          </div>
+          <div class="analysis-list" id="analysis-list"></div>
+        </div>
+      </section>
+
+      <p class="disclaimer reveal">本页内容源自传统命理知识库，仅供文化研究与娱乐体验，不构成医疗、法律、投资或人生决策建议。</p>
+    </section>
+  </main>
+
+  <footer>
+    <span>观象 · BAZI ENGINE</span>
+    <p>历法有序，人生常新。</p>
+  </footer>
+
+  <template id="loading-template">
+    <div class="loading-oracle" aria-label="正在排盘"><i></i><span>推演中</span><i></i></div>
+  </template>
+  <script src="/app.js" defer></script>
+</body>
+</html>
