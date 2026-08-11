@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-huangli.py — 老黄历模块
-数据源：lunar-python。
-覆盖值星、十二神、黄道黑道、九星、二十八宿、六曜、彭祖百忌、胎神、星座和宜忌。
+huangli.py — 老黄历模块 (对齐 app UCyCalendar)
+数据源: lunar-python (寿星天文历, 与 app 同源 UShouXingUtil)
+覆盖 app UCyCalendar 全部字段: 值星/十二神/黄道黑道/九星/二十八宿/六曜/彭祖百忌/胎神/星座/宜忌
 """
 from lunar_python import Solar
 
@@ -18,6 +18,8 @@ def get_huangli(y, m, d):
             '时辰': l.getTimeGanZhiByIndex(i) if hasattr(l, 'getTimeGanZhiByIndex') else '',
             '六曜': '',
         })
+    xiu = l.getXiu()
+    xiu_fullname, _, _ = get_xiu_fullname(xiu)
     info = {
         '日期': f'{y}-{m:02d}-{d:02d}',
         '农历': l.toString(),
@@ -31,7 +33,8 @@ def get_huangli(y, m, d):
         '黄道黑道': l.getDayTianShenType(),
         '吉凶': l.getDayTianShenLuck(),
         # 二十八宿 (TwentyEightStar)
-        '星宿': l.getXiu(),
+        '星宿': xiu,
+        '星宿全名': xiu_fullname or xiu,
         '七政': l.getZheng(),
         '动物': l.getAnimal(),
         '方位': l.getGong(),
@@ -73,6 +76,29 @@ def get_solar_terms(y, m, d):
     for k, v in table.items():
         out[k] = str(v)
     return out
+
+
+def get_jianchu_jieshi(zhi_xing):
+    """建除十二神解释 (维基百科白话 + 协纪辨方书原文)"""
+    import json as _json, os as _os
+    _p = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), '..', 'knowledge', '黄历_建除十二神.json')
+    with open(_p, encoding='utf-8') as _f:
+        d = _json.load(_f)
+    luck = d['shier_shen_jixiong']
+    ji = '吉(黄道)' if zhi_xing in luck['吉'] else ('凶(黑道)' if zhi_xing in luck['凶'] else '')
+    return ji, luck['口诀']
+
+
+def get_xiu_fullname(xiu):
+    """二十八宿全名 (协纪辨方书): 角木蛟/亢金龙..."""
+    import json as _json, os as _os
+    _p = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), '..', 'knowledge', '黄历_协纪辨方书.json')
+    with open(_p, encoding='utf-8') as _f:
+        d = _json.load(_f)
+    for row in d.get('二十八宿表', []):
+        if row['宿'] == xiu:
+            return row['全名'], row['七政'], row['动物']
+    return None, None, None
 
 
 if __name__ == '__main__':

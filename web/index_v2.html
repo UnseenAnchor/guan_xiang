@@ -78,6 +78,15 @@
           </div>
         </details>
 
+        <label class="true-solar-option">
+          <input id="use-true-solar-time" type="checkbox">
+          <span>
+            <b>使用真太阳时校正排盘</b>
+            <small>可选 · 不勾选时严格按出生记录中的标准时间排盘</small>
+          </span>
+        </label>
+        <p class="true-solar-note">不同命理流派采用的时间口径不同。启用后会按出生地经度与均时差校正，跨时辰或跨日期时可能改变时柱、日柱。</p>
+
         <button class="submit-button" type="submit"><span>排定命盘</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
         <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
       </form>
@@ -89,10 +98,14 @@
       <section class="summary-grid reveal" aria-label="命盘摘要">
         <article class="day-master-card"><p>日主 · 命元</p><div class="day-master-content"><strong id="day-master"></strong><div><b id="day-master-element"></b><span>以日干为我，统观全局</span></div></div><div class="mini-facts" id="mini-facts"></div></article>
         <article class="element-card"><div class="article-title"><p>五行观测</p><small>含四柱与藏干</small></div><div id="element-balance" class="element-balance"></div><p class="card-caption">数量仅作结构展示，不等同于身强弱或喜用神判断。</p></article>
-        <article class="solar-card" id="solar-card"><div class="sun-mark" aria-hidden="true">日</div><p>真太阳时</p><div class="solar-time"><span id="solar-original">—</span><i></i><strong id="solar-corrected">—</strong></div><p class="correction" id="solar-correction"></p></article>
+        <article class="solar-card" id="solar-card"><div class="sun-mark" aria-hidden="true">日</div><p id="time-mode-title">排盘口径</p><div class="solar-time"><span id="solar-original">—</span><i></i><strong id="solar-corrected">—</strong></div><p class="correction" id="solar-correction"></p><div class="solar-comparison" id="solar-comparison" hidden></div></article>
       </section>
       <section class="content-section reveal"><div class="section-heading"><div><p class="section-kicker">气的牵引 / RELATIONS</p><h2>刑冲合会</h2></div><p>四柱之间的结合、冲动与会聚关系</p></div><div class="relation-list" id="relation-list"></div></section>
       <section class="content-section reveal"><div class="section-heading"><div><p class="section-kicker">十年一章 / CYCLES</p><h2>大运流转</h2></div><p id="cycle-note"></p></div><div class="cycle-track-wrap"><div class="cycle-track" id="cycle-track"></div></div></section>
+      <section class="content-section reveal" id="annual-section">
+        <div class="section-heading"><div><p class="section-kicker">岁序流转 / ANNUAL</p><h2>未来五年流年</h2></div><p id="annual-note">以当前年份为起点</p></div>
+        <div class="annual-track" id="annual-track"></div>
+      </section>
       <section class="dual-section reveal">
         <div class="content-section shensha-section"><div class="section-heading compact"><div><p class="section-kicker">星曜标记 / SYMBOLS</p><h2>神煞</h2></div><span class="count-badge" id="shensha-count">0</span></div><div class="symbol-list" id="symbol-list"></div></div>
         <div class="content-section analysis-section"><div class="section-heading compact"><div><p class="section-kicker">古籍断语 / NOTES</p><h2>命理札记</h2></div></div><div class="analysis-list" id="analysis-list"></div></div>

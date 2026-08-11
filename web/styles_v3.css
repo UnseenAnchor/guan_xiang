@@ -44,6 +44,21 @@
 .dayun-reading p { margin: 7px 0 0; color: var(--ink-soft); font-size: 10px; line-height: 1.75; }
 .dayun-reading .reading-summary { margin-top: 0; color: var(--ink); font-weight: 600; }
 
+.reference-block { margin-top: 14px; padding-top: 11px; border-top: 1px dashed var(--line); }
+.reference-block summary { color: var(--cinnabar); font-size: 9px; font-weight: 700; cursor: pointer; }
+.reference-block p { margin: 9px 0 0; color: var(--ink-soft); font-size: 9px; line-height: 1.8; white-space: pre-line; }
+
+.annual-track { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 9px; margin-top: 24px; }
+.annual-card { position: relative; min-height: 230px; padding: 18px 16px; background: rgba(248,242,231,.48); border: 1px solid var(--line); }
+.annual-card.active { background: rgba(169,54,40,.065); border-color: rgba(169,54,40,.38); }
+.annual-card.active::before { content: ""; position: absolute; left: -1px; top: -1px; right: -1px; height: 3px; background: var(--cinnabar); }
+.annual-heading { display: flex; justify-content: space-between; color: var(--ink-soft); font-size: 9px; letter-spacing: .08em; }
+.annual-heading b { color: var(--cinnabar); font-weight: 700; }
+.annual-card > strong { display: block; margin: 17px 0 14px; color: var(--cinnabar); font-family: "Ma Shan Zheng", serif; font-size: 30px; font-weight: 400; }
+.annual-card > p { margin: 0; color: var(--ink-soft); font-size: 9px; line-height: 1.75; }
+
+.source-badge { display: inline-block; margin-left: 8px; padding: 2px 5px; color: var(--jade); border: 1px solid rgba(29,92,85,.25); font-size: 7px; font-weight: 500; vertical-align: middle; }
+
 .knowledge-panel { margin: -4px 0 17px; padding: 17px; background: rgba(29,92,85,.055); border: 1px solid rgba(29,92,85,.2); }
 .knowledge-loaded { display: grid; grid-template-columns: 8px 1fr; gap: 4px 8px; align-items: center; }
 .knowledge-loaded i { width: 7px; height: 7px; background: var(--jade); border-radius: 50%; box-shadow: 0 0 0 4px rgba(29,92,85,.08); }
@@ -59,6 +74,7 @@
   .pillar-complete { min-height: 590px; }
   .summary-grid { grid-template-columns: 1fr 1.2fr; }
   .solar-card { grid-column: span 2; }
+  .annual-track { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 680px) {
@@ -67,4 +83,6 @@
   .solar-card { grid-column: auto; }
   .cycle-track.dayun-complete { grid-template-columns: 1fr; }
   .dayun-card { min-height: auto; }
+  .annual-track { grid-template-columns: 1fr; }
+  .annual-card { min-height: auto; }
 }

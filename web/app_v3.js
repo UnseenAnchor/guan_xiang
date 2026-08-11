@@ -6,6 +6,7 @@ renderChart = function renderCompleteChart(chart) {
   renderSummary(chart);
   renderRelations(chart['刑冲合会'] || []);
   renderCycles(chart['大运'] || [], chart['起运'], chart['运年断语'] || {});
+  renderAnnualLuck(chart['流年'] || [], chart['运年断语'] || {});
   renderSymbols(chart['神煞'] || []);
   renderKnowledge(chart['知识库']);
   renderAnalysis(chart['分析'] || []);
@@ -66,23 +67,46 @@ renderElements = function renderCompleteElements(chart) {
 renderCycles = function renderCompleteCycles(cycles, startAge, analyses) {
   const useful = cycles.filter((cycle) => cycle && cycle['干支']);
   const readings = new Map((analyses['大运'] || []).map((item) => [item['干支'], item['断语']]));
+  const classicalReadings = new Map((analyses['三命通会'] || []).map((item) => [item['干支'], item['断语']]));
   document.querySelector('#cycle-note').textContent = `起运 ${startAge ?? '—'} 岁 · 共 ${useful.length} 步有效大运，已全部展开`;
   const currentYear = new Date().getFullYear();
   const track = document.querySelector('#cycle-track');
   track.className = 'cycle-track dayun-complete';
   track.innerHTML = useful.map((cycle) => {
     const active = currentYear >= cycle['起年'] && currentYear <= cycle['终年'];
-    const readingParts = String(readings.get(cycle['干支']) || '暂无对应断语').split(' | ');
+    const readingParts = cleanText(readings.get(cycle['干支']) || '暂无对应断语').split(/\s*\|\s*|\n+/).filter(Boolean);
+    const classical = classicalReadings.get(cycle['干支']);
     return `
       <article class="dayun-card${active ? ' active' : ''}">
         <div class="dayun-order"><span>第 ${escapeHTML(cycle['序'])} 运</span>${active ? '<b>当下所行</b>' : ''}</div>
         <div class="dayun-main"><strong>${escapeHTML(cycle['干支'])}</strong><div><b>${escapeHTML(cycle['年龄'])} 岁</b><span>${escapeHTML(cycle['起年'])}—${escapeHTML(cycle['终年'])}</span></div></div>
         <div class="dayun-reading">
           ${readingParts.map((part, index) => `<p${index === 0 ? ' class="reading-summary"' : ''}>${escapeHTML(part)}</p>`).join('')}
+          ${classical ? `<details class="reference-block"><summary>《三命通会》古籍参照</summary><p>${escapeHTML(cleanText(classical))}</p></details>` : ''}
         </div>
       </article>`;
   }).join('');
 };
+
+function renderAnnualLuck(years, analyses) {
+  const readings = new Map((analyses['流年'] || []).map((item) => [String(item['年']), item['断语']]));
+  const classical = new Map((analyses['三命通会流年'] || []).map((item) => [item['干支'], item['断语']]));
+  const currentYear = new Date().getFullYear();
+  const note = document.querySelector('#annual-note');
+  const track = document.querySelector('#annual-track');
+  note.textContent = years.length ? `${years[0]['年']}—${years[years.length - 1]['年']} · 以当前年份为起点` : '暂无流年数据';
+  track.innerHTML = years.map((item) => {
+    const active = Number(item['年']) === currentYear;
+    const reading = readings.get(String(item['年'])) || '暂无对应规则说明';
+    const source = classical.get(item['干支']);
+    return `<article class="annual-card${active ? ' active' : ''}">
+      <div class="annual-heading"><span>${escapeHTML(item['年'])}</span>${active ? '<b>今年</b>' : ''}</div>
+      <strong>${escapeHTML(item['干支'])}</strong>
+      <p>${escapeHTML(cleanText(reading))}</p>
+      ${source ? `<details class="reference-block"><summary>太岁古籍参照</summary><p>${escapeHTML(cleanText(source))}</p></details>` : ''}
+    </article>`;
+  }).join('');
+}
 
 function renderKnowledge(knowledge) {
   const analysisSection = document.querySelector('.analysis-section');
@@ -108,11 +132,14 @@ function renderKnowledge(knowledge) {
 
 renderAnalysis = function renderAllAnalysis(analysis) {
   const container = document.querySelector('#analysis-list');
-  container.innerHTML = analysis.map(([title, body], index) => `
+  container.innerHTML = analysis.map(([title, body], index) => {
+    const source = title.startsWith('月令断语') || title.startsWith('日主性格') ? '古籍参照' : '规则匹配';
+    return `
     <article class="analysis-item${index === 0 ? ' open' : ''}">
-      <button type="button" aria-expanded="${index === 0}"><span>${escapeHTML(title)}</span><i aria-hidden="true"></i></button>
+      <button type="button" aria-expanded="${index === 0}"><span>${escapeHTML(title)}<small class="source-badge">${source}</small></span><i aria-hidden="true"></i></button>
       <div class="analysis-body">${escapeHTML(cleanText(body))}</div>
-    </article>`).join('');
+    </article>`;
+  }).join('');
   container.querySelectorAll('.analysis-item button').forEach((button) => button.addEventListener('click', () => {
     const item = button.closest('.analysis-item');
     const open = item.classList.toggle('open');

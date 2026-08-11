@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 """
 ganzhi.py — 干支基础层
-提供干支、五行、十神、纳音、空亡与十二长生等基础数据。
+数据源: 诚易排盘 app (com.cy.CYBZ) 内置知识库 ny.txt
 """
 import json, os
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
-D = json.load(open(os.path.join(_HERE, 'data_ny.json'), encoding='utf-8'))
+with open(os.path.join(_HERE, 'data_ny.json'), encoding='utf-8') as _file:
+    D = json.load(_file)
 
 GAN = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸']      # 十天干
 ZHI = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥']  # 十二地支

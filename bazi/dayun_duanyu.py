@@ -1,16 +1,19 @@
 # -*- coding: utf-8 -*-
 """
-dayun_duanyu.py — 大运/流年断语
-以运干相对日主的十神和坐支状态，从本地断语数据中选取结果。
+dayun_duanyu.py — 大运/流年断语 (对齐 app UfDayunHint/UfShhLiuNian)
+近似实现: 以运干相对日主的十神 + 坐支状态, 从 app 断语库 (ssxx/swk/性格断语) 选取
+⚠ 注: app 原版选取规则在 UfDayunHint 代码中, 此为基于标准命理规则的合理近似
 """
 import json, os, re
 from .ganzhi import shishen, shier_changsheng, zhi_canggan, nayin_jian
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
-SER = json.load(open(os.path.join(_HERE, '..', 'knowledge', 'serjson.json'), encoding='utf-8'))
+with open(os.path.join(_HERE, '..', 'knowledge', 'serjson.json'), encoding='utf-8') as _file:
+    SER = json.load(_file)
 SSXX = SER['ssxx']
 SWK = SER['swk']
-PURE = json.load(open(os.path.join(_HERE, '..', 'knowledge', 'cn_pure.json'), encoding='utf-8'))
+with open(os.path.join(_HERE, '..', 'knowledge', 'cn_pure.json'), encoding='utf-8') as _file:
+    PURE = json.load(_file)
 
 def _strip(t):
     return re.sub(r'<@font\|[^>]*?/@>', '', t).replace('\\n', ' ').strip()
