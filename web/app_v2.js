@@ -285,7 +285,7 @@ function renderSummary(chart) {
   const [element, polarity] = GAN_ELEMENT[dayMaster] || ['', ''];
   document.querySelector('#day-master').textContent = dayMaster;
   document.querySelector('#day-master-element').textContent = `${polarity}${element}`;
-  document.querySelector('#mini-facts').innerHTML = `<span>胎元 <b>${escapeHTML(chart['胎元'] || '—')}</b></span><span>命宫 <b>${escapeHTML(chart['命宫'] || '—')}</b></span><span>生肖 <b>${escapeHTML(chart['生肖'])}</b></span>`;
+  document.querySelector('#mini-facts').innerHTML = `<span>胎元 <b>${escapeHTML(chart['胎元'] || '—')}</b></span><span>命宫 <b>${escapeHTML(chart['命宫'] || '—')}</b></span><span>身宫 <b>${escapeHTML(chart['身宫'] || '—')}</b></span><span>生肖 <b>${escapeHTML(chart['生肖'])}</b></span>`;
   renderElements(chart);
   const solarCard = document.querySelector('#solar-card');
   const solar = chart['真太阳时'];

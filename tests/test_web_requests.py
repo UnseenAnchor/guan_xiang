@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import unittest
+import datetime
 
 from web_server_v2 import build_chart_from_request
 
@@ -72,6 +73,24 @@ class WebRequestTests(unittest.TestCase):
             {name: solar["四柱"][name]["干支"] for name in "年月日时"},
             {name: lunar["四柱"][name]["干支"] for name in "年月日时"},
         )
+
+    def test_verified_content_is_available_to_the_web_response(self):
+        chart = build_chart_from_request({
+            "calendar": "solar",
+            "date": "1990-05-15",
+            "time": "10:30",
+            "sex": 1,
+        })
+        self.assertEqual(chart["身宫"], "丁亥")
+        self.assertEqual(
+            [item["年"] for item in chart["流年"]],
+            list(range(datetime.date.today().year, datetime.date.today().year + 5)),
+        )
+        effective_dayun = [item for item in chart["大运"][1:] if item.get("干支")]
+        self.assertEqual(len(chart["运年断语"]["三命通会"]), len(effective_dayun))
+        titles = [item[0] for item in chart["分析"]]
+        self.assertTrue(any(title.startswith("月令断语") for title in titles))
+        self.assertTrue(any(title.startswith("日主性格") for title in titles))
 
 
 if __name__ == "__main__":
