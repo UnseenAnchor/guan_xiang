@@ -8,7 +8,7 @@
 
 ```bash
 pip install -r requirements.txt
-python web_server_v3.py
+python web_server.py
 ```
 
 访问 <http://127.0.0.1:8787>。
@@ -62,7 +62,7 @@ node --check web/app_v2.js
 node --check web/app_v3.js
 ```
 
-当前基线包含13项引擎回归测试和6项Web请求测试。
+当前基线包含13项引擎回归测试、7项Web请求测试和4项前端契约测试。
 
 ## 主要目录
 

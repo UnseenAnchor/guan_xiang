@@ -55,7 +55,9 @@ def parse_birth(data):
     year = int(data.get("lunar_year"))
     month = int(data.get("lunar_month"))
     day = int(data.get("lunar_day"))
-    is_leap = bool(data.get("lunar_leap", False))
+    is_leap = data.get("lunar_leap", False)
+    if not isinstance(is_leap, bool):
+        raise ValueError("闰月参数无效")
     if not 1900 <= year <= 2099 or not 1 <= month <= 12 or not 1 <= day <= 30:
         raise ValueError("农历日期超出支持范围")
 
@@ -85,12 +87,14 @@ def _pillar_summary(chart):
 
 def build_chart_from_request(data):
     """Validate a web request and return a chart with an explicit time-calculation mode."""
+    if not isinstance(data, dict):
+        raise ValueError("请求JSON应为对象")
     born, calendar_label, original_date = parse_birth(data)
     if not 1900 <= born.year <= 2099:
         raise ValueError("目前支持 1900—2099 年的出生日期")
 
-    sex = int(data.get("sex", 1))
-    if sex not in (0, 1):
+    sex = data.get("sex", 1)
+    if isinstance(sex, bool) or not isinstance(sex, int) or sex not in (0, 1):
         raise ValueError("性别参数无效")
 
     use_true_solar_time = data.get("use_true_solar_time", False)
@@ -209,7 +213,11 @@ class BaziV2RequestHandler(SimpleHTTPRequestHandler):
         except (ValueError, TypeError, json.JSONDecodeError) as exc:
             self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.BAD_REQUEST)
         except Exception as exc:
-            self._send_json({"ok": False, "error": f"排盘失败：{exc}"}, HTTPStatus.INTERNAL_SERVER_ERROR)
+            print(f"[bazi-web-v2] chart error: {exc!r}")
+            self._send_json(
+                {"ok": False, "error": "排盘失败，请检查输入或查看服务日志"},
+                HTTPStatus.INTERNAL_SERVER_ERROR,
+            )
 
 
 def main():

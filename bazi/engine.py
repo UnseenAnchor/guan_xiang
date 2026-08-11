@@ -176,7 +176,7 @@ def build_chart(y, m, d, h, mi=0, s=0, sex=1, **kwargs):
     from .dayun_duanyu import chart_dy_analysis
     result['运年断语'] = chart_dy_analysis(rigan, result.get('大运', []), result.get('流年', []))
 
-    # 三命通会权威大运/流年断语 (论大运/论太岁)
+    # 《三命通会》古籍参照 (论大运/论太岁)
     try:
         from .dayun_zhengyi import dayun_zhengyi, taisui_zhengyi
         zhengyi = []
@@ -267,7 +267,7 @@ def render_text(chart):
         for ln in chart['运年断语']['流年'][:2]:
             L.append(f"  {ln['干支']}年: {ln['断语']}")
         if chart['运年断语'].get('三命通会'):
-            L.append('运年断语 (三命通会权威):')
+            L.append('运年断语 (《三命通会》古籍参照):')
             for d in chart['运年断语']['三命通会'][:4]:
                 L.append(f"  {d['干支']}运: {d['断语'][:60]}")
             for ln in chart['运年断语']['三命通会流年'][:2]:

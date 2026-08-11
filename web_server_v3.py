@@ -22,11 +22,9 @@ base.build_chart = enriched_build_chart
 class BaziV3RequestHandler(base.BaziV2RequestHandler):
     def do_GET(self):
         if urlparse(self.path).path == "/":
-            source = os.path.join(base.WEB_ROOT, "index_v2.html")
+            source = os.path.join(base.WEB_ROOT, "index.html")
             with open(source, encoding="utf-8") as file:
                 html = file.read()
-            html = html.replace("</head>", '  <link rel="stylesheet" href="/styles_v3.css">\n</head>')
-            html = html.replace("</body>", '  <script src="/app_v3.js" defer></script>\n</body>')
             body = html.encode("utf-8")
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")

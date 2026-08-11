@@ -42,6 +42,24 @@ class WebRequestTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "请先选择出生地或填写经度"):
             build_chart_from_request(self.solar_payload(use_true_solar_time=True))
 
+    def test_request_types_are_strictly_validated(self):
+        with self.assertRaisesRegex(ValueError, "请求JSON应为对象"):
+            build_chart_from_request([])
+        with self.assertRaisesRegex(ValueError, "性别参数无效"):
+            build_chart_from_request(self.solar_payload(sex=True))
+        with self.assertRaisesRegex(ValueError, "真太阳时参数无效"):
+            build_chart_from_request(self.solar_payload(use_true_solar_time="false"))
+        with self.assertRaisesRegex(ValueError, "闰月参数无效"):
+            build_chart_from_request({
+                "calendar": "lunar",
+                "lunar_year": 1990,
+                "lunar_month": 4,
+                "lunar_day": 21,
+                "lunar_leap": "false",
+                "time": "10:30",
+                "sex": 1,
+            })
+
     def test_true_solar_time_rebuilds_date_and_pillars(self):
         chart = build_chart_from_request(self.solar_payload(
             longitude=75,
