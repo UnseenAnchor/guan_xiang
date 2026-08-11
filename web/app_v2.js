@@ -8,6 +8,7 @@ const placeResults = document.querySelector('#place-results');
 const longitudeInput = document.querySelector('#longitude');
 const latitudeInput = document.querySelector('#latitude');
 const locationStatus = document.querySelector('#location-status');
+const trueSolarInput = document.querySelector('#use-true-solar-time');
 
 let locations = [];
 let selectedPlace = null;
@@ -180,6 +181,7 @@ function clearCoordinates(clearSearch) {
   selectedPlace = null;
   longitudeInput.value = '';
   latitudeInput.value = '';
+  trueSolarInput.checked = false;
   if (clearSearch) locationSearch.value = '';
   document.querySelector('#clear-location').hidden = true;
   locationStatus.classList.remove('selected');
@@ -195,6 +197,14 @@ function clearCoordinates(clearSearch) {
   locationStatus.classList.add('selected');
   locationStatus.innerHTML = `<i></i> 将按经度 ${escapeHTML(longitudeInput.value)}° 校正真太阳时`;
 }));
+
+trueSolarInput.addEventListener('change', () => {
+  if (trueSolarInput.checked && !longitudeInput.value) {
+    statusLine.textContent = '启用真太阳时前，请先选择出生地或填写经度。';
+  } else {
+    statusLine.textContent = '';
+  }
+});
 
 form.addEventListener('submit', async (event) => {
   event.preventDefault();
@@ -214,6 +224,8 @@ form.addEventListener('submit', async (event) => {
     location_name: selectedPlace?.path || (longitudeInput.value ? locationSearch.value.trim() : ''),
     longitude: longitudeInput.value,
     latitude: latitudeInput.value,
+    use_true_solar_time: trueSolarInput.checked,
+    timezone: 'Asia/Shanghai',
   };
   try {
     const response = await fetch('/api/chart', {
@@ -277,16 +289,34 @@ function renderSummary(chart) {
   renderElements(chart);
   const solarCard = document.querySelector('#solar-card');
   const solar = chart['真太阳时'];
+  const comparison = chart['时间对比'];
+  const mode = chart['排盘口径'] || {};
+  const comparisonPanel = document.querySelector('#solar-comparison');
   solarCard.classList.toggle('uncorrected', !solar);
   if (solar) {
-    document.querySelector('#solar-original').textContent = solar['原时间'];
-    document.querySelector('#solar-corrected').textContent = solar['校正后'];
+    document.querySelector('#time-mode-title').textContent = '真太阳时排盘';
+    document.querySelector('#solar-original').textContent = comparison?.['标准日期时间'] || solar['原时间'];
+    document.querySelector('#solar-corrected').textContent = comparison?.['真太阳日期时间'] || solar['校正后'];
     const sign = Number(solar['总校正分']) > 0 ? '+' : '';
     document.querySelector('#solar-correction').textContent = `按出生地经度与均时差，共校正 ${sign}${solar['总校正分']} 分钟`;
+    const changed = comparison?.['变化柱'] || [];
+    if (changed.length) {
+      comparisonPanel.innerHTML = `<b>校正改变了${escapeHTML(changed.join('、'))}柱</b>${changed.map((name) => {
+        const before = comparison['标准四柱'][name];
+        const after = comparison['真太阳时四柱'][name];
+        return `<span>${escapeHTML(name)}柱 ${escapeHTML(before)} → ${escapeHTML(after)}</span>`;
+      }).join('')}`;
+    } else {
+      comparisonPanel.innerHTML = '<b>校正未改变四柱</b><span>校正后的时间仍处于相同排盘口径边界内</span>';
+    }
+    comparisonPanel.hidden = false;
   } else {
+    document.querySelector('#time-mode-title').textContent = '标准时间排盘';
     document.querySelector('#solar-original').textContent = chart['输入']['公历'].slice(-5);
     document.querySelector('#solar-corrected').textContent = '未校正';
-    document.querySelector('#solar-correction').textContent = '出生地为选填项；未填写时保留输入的标准时间。';
+    document.querySelector('#solar-correction').textContent = mode['说明'] || '按出生记录中的标准时间排盘。';
+    comparisonPanel.hidden = true;
+    comparisonPanel.innerHTML = '';
   }
 }
 

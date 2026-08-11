@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-analysis.py — 断语分析
-数据包含十神断语与日柱坐支论。
+analysis.py — 断语分析 (对接诚易排盘 app 内置断语库)
+数据: serjson.txt 的 ssxx (十神断语 167条) + swk (日柱坐支论 120条)
 """
 import json, os, re
 from .ganzhi import shishen, zhi_canggan
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
-SER = json.load(open(os.path.join(_HERE, '..', 'knowledge', 'serjson.json'), encoding='utf-8'))
+with open(os.path.join(_HERE, '..', 'knowledge', 'serjson.json'), encoding='utf-8') as _file:
+    SER = json.load(_file)
 SSXX = SER['ssxx']      # 十神断语
 SWK = SER['swk']        # 日柱坐支论 (key: 日干+日支, value: '长生#断语')
 

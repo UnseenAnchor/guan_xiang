@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 shensha.py — 神煞查法
-采用常见传统神煞查法。
+规则来源: 诚易排盘 app 内置神煞库 (serjson.txt) 的查法说明 + 传统标准查法
 """
 from .ganzhi import GAN, ZHI, nayin, xunkong, zhi_index
 
@@ -57,9 +57,9 @@ def sanhe_star(z, kind):
         '亡神': {0: 2, 1: 3, 2: 0, 3: 1},
         '灾煞': {0: 1, 1: 3, 2: 2, 3: 0},
     }
-    # 具体: 以三合局五行论
+    # 以三合局五行论 (标准口诀核对)
     idx = g.index(z)
-    if kind == '驿马': return g[(idx + 2) % 3]  # 冲三合首支之支
+    if kind == '驿马': return {'申子辰': '寅', '寅午戌': '申', '巳酉丑': '亥', '亥卯未': '巳'}[ ''.join(g) ]  # 三合首支对冲
     if kind == '桃花':  # 三合局的沐浴位 = 三合首支的三合外
         return {'申子辰': '酉', '寅午戌': '卯', '巳酉丑': '午', '亥卯未': '子'}[ ''.join(g) ]
     if kind == '华盖':
@@ -103,7 +103,7 @@ def sangmen(year_zhi):  return ZHI[(zhi_index(year_zhi) + 2) % 12]   # 子->寅
 def diaoke(year_zhi):   return ZHI[(zhi_index(year_zhi) + 10) % 12]  # 子->戌
 def pima(year_zhi):     return ZHI[(zhi_index(year_zhi) + 9) % 12]   # 子->酉
 
-# 勾绞煞：按年支与桃花六冲地支计算
+# 勾绞煞: 年支 -> 六冲位再前一位? app: 桃花的六冲地支
 def goujiao(year_zhi):
     taohua = sanhe_star(year_zhi, '桃花')
     return ZHI[(zhi_index(taohua) + 6) % 12] if taohua else None
@@ -132,9 +132,9 @@ def season(month):  # 月(节气月1-12) -> 季节
     return {1: '春', 2: '春', 3: '春', 4: '夏', 5: '夏', 6: '夏',
             7: '秋', 8: '秋', 9: '秋', 10: '冬', 11: '冬', 12: '冬'}[month]
 
-# ---------- 童子煞 ----------
+# ---------- 童子煞 (app 规则) ----------
 def tongzi(month_season, year_nayin, ri_zhi, shi_zhi, ri_gan):
-    """按季节、年纳音和日时支计算童子煞。"""
+    """app 规则: 见 serjson 童子煞查法"""
     hits = []
     if month_season in ('春', '秋'):
         if ri_zhi in ('寅', '子') or shi_zhi in ('寅', '子'):

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-hehui.py — 天干地支刑冲合会
+hehui.py — 刑冲合会 (对齐 app TXCHH_REC: hasGan/hasZhi/zhuHeNum)
 标准规则: 天干五合 / 地支六合·三合·六冲·三刑·六害·相破
 """
 from .ganzhi import (GAN, ZHI, tian_gan_he, di_zhi_he, di_zhi_chong, di_zhi_xing,
@@ -49,18 +49,16 @@ def analyze(pillars):
                 result.append(('地支六合', f'{pos[i]}{pos[j]}', f'{zi}{zj}', f'{zi}与{zj}合'))
 
     # ---- 地支三合 (三支齐见才算) ----
-    zhi_list = [zhis[p] for p in pos]
     for group_name, members in [('水局', '申子辰'), ('火局', '寅午戌'), ('金局', '巳酉丑'), ('木局', '亥卯未')]:
         present = [p for p in pos if zhis[p] in members]
-        if len(present) == 3:
+        if {zhis[p] for p in present} == set(members):
             result.append(('地支三合', ''.join(present), ''.join(sorted(zhis[p] for p in present)), f'{group_name}成局'))
-        elif len(present) == 2 and any(z for z in zhi_list if z not in members and SANHE.get(z, ('', ''))[0].endswith(group_name[0])):
-            pass  # 半合需中神, 简化只报成局
 
-    # 半合 (两支 + 中神在)
+    # 半合 (两支齐见且包含中神)
     for group_name, members in [('水局', '申子辰'), ('火局', '寅午戌'), ('金局', '巳酉丑'), ('木局', '亥卯未')]:
         present = [p for p in pos if zhis[p] in members]
-        if len(present) == 2:
+        present_zhis = {zhis[p] for p in present}
+        if len(present_zhis) == 2 and members[1] in present_zhis:
             result.append(('地支半合', ''.join(present), ''.join(zhis[p] for p in present), f'{group_name}半合'))
 
     # ---- 地支六冲 ----
@@ -73,18 +71,17 @@ def analyze(pillars):
     # ---- 地支三刑 (寅巳申 / 丑戌未 三支齐, 子卯刑 两支, 自刑) ----
     for trio, name in [(('寅', '巳', '申'), '无恩之刑'), (('丑', '戌', '未'), '恃势之刑')]:
         present = [p for p in pos if zhis[p] in trio]
-        if len(present) == 3:
+        if {zhis[p] for p in present} == set(trio):
             result.append(('地支三刑', ''.join(present), ''.join(zhis[p] for p in present), f'{name}成局'))
     for i in range(4):
         for j in range(i + 1, 4):
             zi, zj = zhis[pos[i]], zhis[pos[j]]
             if di_zhi_xing(zi) == zj:
+                if zi == zj:
+                    result.append(('地支自刑', f'{pos[i]}{pos[j]}', f'{zi}{zj}', f'{zi}自刑'))
+                    continue
                 name = '无礼之刑' if {zi, zj} == {'子', '卯'} else '相刑'
                 result.append(('地支相刑', f'{pos[i]}{pos[j]}', f'{zi}{zj}', f'{zi}刑{zj}'))
-        # 自刑
-        z = zhis[pos[i]]
-        if z in ('辰', '午', '酉', '亥'):
-            result.append(('地支自刑', pos[i], z + z, f'{z}自刑'))
 
     # ---- 地支六害 ----
     for i in range(4):
@@ -103,7 +100,7 @@ def analyze(pillars):
     # ---- 地支三会 ----
     for group_name, members in [('东方木', '寅卯辰'), ('南方火', '巳午未'), ('西方金', '申酉戌'), ('北方水', '亥子丑')]:
         present = [p for p in pos if zhis[p] in members]
-        if len(present) == 3:
+        if {zhis[p] for p in present} == set(members):
             result.append(('地支三会', ''.join(present), ''.join(zhis[p] for p in present), f'{group_name}会方'))
 
     return result

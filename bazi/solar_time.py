@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-solar_time.py — 真太阳时校正
+solar_time.py — 真太阳时校正 (对齐 app TZhenTaiYangShi)
 标准公式: 真太阳时 = 平太阳时 + 经度时差 + 均时差
 """
 import math
