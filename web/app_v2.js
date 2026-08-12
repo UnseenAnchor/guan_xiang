@@ -167,8 +167,7 @@ function selectPlace(place) {
   latitudeInput.value = place.latitude;
   placeResults.hidden = true;
   document.querySelector('#clear-location').hidden = false;
-  locationStatus.classList.add('selected');
-  locationStatus.innerHTML = `<i></i> 已定位 ${escapeHTML(place.path)} · ${place.longitude.toFixed(4)}° E`;
+  syncLocationStatus();
 }
 
 document.querySelector('#clear-location').addEventListener('click', () => {
@@ -188,17 +187,25 @@ function clearCoordinates(clearSearch) {
   locationStatus.innerHTML = '<i></i> 未选择地点，将使用标准时间排盘';
 }
 
-[longitudeInput, latitudeInput].forEach((input) => input.addEventListener('input', () => {
+function syncLocationStatus() {
   if (!longitudeInput.value) {
     locationStatus.classList.remove('selected');
     locationStatus.innerHTML = '<i></i> 未填写经度，将使用标准时间排盘';
     return;
   }
   locationStatus.classList.add('selected');
-  locationStatus.innerHTML = `<i></i> 将按经度 ${escapeHTML(longitudeInput.value)}° 校正真太阳时`;
+  const place = selectedPlace ? `已定位 ${escapeHTML(selectedPlace.path)}` : `已记录经度 ${escapeHTML(longitudeInput.value)}°`;
+  const mode = trueSolarInput.checked ? '将用于真太阳时校正' : '真太阳时未启用';
+  locationStatus.innerHTML = `<i></i> ${place} · ${mode}`;
+}
+
+[longitudeInput, latitudeInput].forEach((input) => input.addEventListener('input', () => {
+  selectedPlace = null;
+  syncLocationStatus();
 }));
 
 trueSolarInput.addEventListener('change', () => {
+  syncLocationStatus();
   if (trueSolarInput.checked && !longitudeInput.value) {
     statusLine.textContent = '启用真太阳时前，请先选择出生地或填写经度。';
   } else {
