@@ -26,9 +26,31 @@ class FrontendContractTests(unittest.TestCase):
 
     def test_default_page_loads_canonical_assets_once(self):
         html = (ROOT / "web" / "index.html").read_text(encoding="utf-8")
-        self.assertEqual(html.count('href="/styles.css?v=0.3.1"'), 1)
-        self.assertEqual(html.count('src="/app.js?v=0.3.1"'), 1)
-        self.assertEqual(html.count('?v=0.3.1'), 2)
+        self.assertEqual(html.count('href="/styles.css?v=0.3.2"'), 1)
+        self.assertEqual(html.count('src="/app.js?v=0.3.2"'), 1)
+        self.assertEqual(html.count('?v=0.3.2'), 2)
+
+    def test_solar_and_lunar_dates_share_the_same_three_part_structure(self):
+        html = (ROOT / "web" / "index.html").read_text(encoding="utf-8")
+        script = (ROOT / "web" / "app.js").read_text(encoding="utf-8")
+        self.assertEqual(html.count('class="date-grid"'), 2)
+        for field_id in (
+            "solar-year", "solar-month", "solar-day",
+            "lunar-year", "lunar-month", "lunar-day",
+        ):
+            self.assertIn(f'id="{field_id}"', html)
+        self.assertNotIn('id="birth-date"', html)
+        self.assertNotIn('type="date"', html)
+        self.assertIn("function updateSolarDays(defaultDay)", script)
+        self.assertIn("date: solarDateValue()", script)
+
+    def test_calendar_height_and_true_solar_copy_are_structurally_stable(self):
+        html = (ROOT / "web" / "index.html").read_text(encoding="utf-8")
+        styles = (ROOT / "web" / "styles.css").read_text(encoding="utf-8")
+        self.assertEqual(html.count('class="calendar-support'), 2)
+        self.assertRegex(styles, r"\.calendar-support\s*\{[^}]*height:\s*22px")
+        self.assertIn('class="true-solar-setting"', html)
+        self.assertRegex(styles, r"\.true-solar-note\s*\{[^}]*margin:\s*10px 0 0 30px")
 
     def test_default_server_exports_canonical_contract(self):
         import web_server
@@ -60,9 +82,9 @@ class FrontendContractTests(unittest.TestCase):
         queried_ids = set(re.findall(r"querySelector\('#([^']+)'\)", script))
         self.assertEqual(queried_ids - html_ids, set())
         self.assertIn('href="/almanac" aria-current="page"', html)
-        self.assertEqual(html.count('src="/almanac.js?v=0.3.1"'), 1)
-        self.assertEqual(html.count('href="/almanac.css?v=0.3.1"'), 1)
-        self.assertEqual(html.count('?v=0.3.1'), 3)
+        self.assertEqual(html.count('src="/almanac.js?v=0.3.2"'), 1)
+        self.assertEqual(html.count('href="/almanac.css?v=0.3.2"'), 1)
+        self.assertEqual(html.count('?v=0.3.2'), 3)
 
     def test_repository_has_no_retired_version_layers(self):
         retired = [
