@@ -14,6 +14,7 @@ from lunar_python import Lunar, LunarYear
 
 from bazi.engine import build_chart as core_build_chart
 from bazi.knowledge_loader import enrich_chart, load_knowledge
+from bazi.llm_explainer import ExplanationError, explain_chart
 from bazi.web_schema import build_almanac, build_experimental_analysis
 
 
@@ -236,11 +237,18 @@ class BaziRequestHandler(SimpleHTTPRequestHandler):
         if page:
             self._send_page(page)
             return
+        if parsed.path.startswith("/api/"):
+            self._send_json({"ok": False, "error": "接口不存在"}, HTTPStatus.NOT_FOUND)
+            return
         super().do_GET()
 
     def do_POST(self):
-        if urlparse(self.path).path != "/api/chart":
-            self.send_error(HTTPStatus.NOT_FOUND)
+        path = urlparse(self.path).path
+        if path not in ("/api/chart", "/api/chart-explanation"):
+            if path.startswith("/api/"):
+                self._send_json({"ok": False, "error": "接口不存在"}, HTTPStatus.NOT_FOUND)
+            else:
+                self.send_error(HTTPStatus.NOT_FOUND)
             return
         try:
             length = int(self.headers.get("Content-Length", "0"))
@@ -248,9 +256,14 @@ class BaziRequestHandler(SimpleHTTPRequestHandler):
                 raise ValueError("请求内容为空或过大")
             data = json.loads(self.rfile.read(length).decode("utf-8"))
             chart = build_chart_from_request(data)
-            self._send_json({"ok": True, "chart": chart})
+            if path == "/api/chart":
+                self._send_json({"ok": True, "chart": chart})
+            else:
+                self._send_json({"ok": True, "explanation": explain_chart(chart)})
         except (ValueError, TypeError, json.JSONDecodeError) as exc:
             self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.BAD_REQUEST)
+        except ExplanationError as exc:
+            self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.BAD_GATEWAY)
         except Exception as exc:
             print(f"[bazi-web] chart error: {exc!r}")
             self._send_json(

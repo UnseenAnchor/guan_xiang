@@ -1,1 +1,2 @@
 lunar-python>=1.1.2
+certifi>=2024.8.30

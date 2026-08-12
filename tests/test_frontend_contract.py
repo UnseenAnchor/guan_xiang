@@ -26,9 +26,9 @@ class FrontendContractTests(unittest.TestCase):
 
     def test_default_page_loads_canonical_assets_once(self):
         html = (ROOT / "web" / "index.html").read_text(encoding="utf-8")
-        self.assertEqual(html.count('href="/styles.css?v=0.3.2"'), 1)
-        self.assertEqual(html.count('src="/app.js?v=0.3.2"'), 1)
-        self.assertEqual(html.count('?v=0.3.2'), 2)
+        self.assertEqual(html.count('href="/styles.css?v=0.4.2"'), 1)
+        self.assertEqual(html.count('src="/app.js?v=0.4.2"'), 1)
+        self.assertEqual(html.count('?v=0.4.2'), 2)
 
     def test_solar_and_lunar_dates_share_the_same_three_part_structure(self):
         html = (ROOT / "web" / "index.html").read_text(encoding="utf-8")
@@ -72,8 +72,52 @@ class FrontendContractTests(unittest.TestCase):
         self.assertIn('href="#section-experimental"', html)
         self.assertIn('id="experimental-root"', html)
         self.assertRegex(html, r'<details class="experimental-panel">')
+        self.assertIn("旺衰与取用推演", html)
+        self.assertIn("本部分基于综合规则分析，不同命理流派可能存在不同结论。", html)
+        self.assertNotIn("实验模型 / EXPERIMENT", html)
         self.assertIn("renderExperimental(chart['实验推演'])", script)
         self.assertIn("模型建议关注", script)
+
+    def test_chart_directory_orders_facts_before_research_content(self):
+        html = (ROOT / "web" / "index.html").read_text(encoding="utf-8")
+        script = (ROOT / "web" / "app.js").read_text(encoding="utf-8")
+        styles = (ROOT / "web" / "styles.css").read_text(encoding="utf-8")
+        self.assertIn('aria-label="命盘目录"', html)
+        self.assertIn('<nav class="chart-nav" aria-label="命盘目录">', html)
+        self.assertIn("排盘事实", html)
+        self.assertIn("参研内容", html)
+        self.assertLess(html.index('id="section-relations"'), html.index('id="section-cycles"'))
+        self.assertLess(html.index('id="section-references"'), html.index('class="research-zone'))
+        self.assertLess(html.index('id="section-experimental"'), html.index('id="section-ai"'))
+        self.assertIn("function initializeChapterNav()", script)
+        self.assertIn("event.preventDefault()", script)
+        self.assertIn("target.scrollIntoView({ behavior: 'smooth', block: 'start' })", script)
+        self.assertIn("history.replaceState(null, '', link.hash)", script)
+        self.assertIn("main { overflow-x: clip; }", styles)
+        self.assertNotIn("main { overflow: hidden; }", styles)
+
+    def test_chart_has_ai_explanation_and_local_exports(self):
+        html = (ROOT / "web" / "index.html").read_text(encoding="utf-8")
+        script = (ROOT / "web" / "app.js").read_text(encoding="utf-8")
+        styles = (ROOT / "web" / "styles.css").read_text(encoding="utf-8")
+        self.assertIn('id="generate-explanation"', html)
+        self.assertNotIn("不含姓名", html)
+        self.assertIn("出生日期、出生地和坐标不会发送", html)
+        self.assertRegex(html, r'<details class="ai-explanation" id="ai-explanation" hidden open>')
+        self.assertIn('id="ai-explanation-body"', html)
+        self.assertNotIn("DeepSeek", html)
+        self.assertNotIn("DeepSeek", script)
+        self.assertEqual(html.count('data-export='), 2)
+        self.assertIn("/api/chart-explanation", script)
+        self.assertIn("function renderMarkdownInline(value)", script)
+        self.assertIn("function renderSafeMarkdown(markdown)", script)
+        self.assertIn("markdown-table-wrap", script)
+        self.assertIn("const ordered =", script)
+        self.assertIn("<blockquote>", script)
+        self.assertIn(".ai-explanation:not([open])", styles)
+        self.assertIn("function buildChartMarkdown(chart)", script)
+        self.assertIn("function buildChartText(chart)", script)
+        self.assertIn("async function readJsonResponse(response)", script)
 
     def test_almanac_page_contains_every_script_render_target(self):
         html = (ROOT / "web" / "almanac.html").read_text(encoding="utf-8")
@@ -82,9 +126,9 @@ class FrontendContractTests(unittest.TestCase):
         queried_ids = set(re.findall(r"querySelector\('#([^']+)'\)", script))
         self.assertEqual(queried_ids - html_ids, set())
         self.assertIn('href="/almanac" aria-current="page"', html)
-        self.assertEqual(html.count('src="/almanac.js?v=0.3.2"'), 1)
-        self.assertEqual(html.count('href="/almanac.css?v=0.3.2"'), 1)
-        self.assertEqual(html.count('?v=0.3.2'), 3)
+        self.assertEqual(html.count('src="/almanac.js?v=0.4.2"'), 1)
+        self.assertEqual(html.count('href="/almanac.css?v=0.4.2"'), 1)
+        self.assertEqual(html.count('?v=0.4.2'), 3)
 
     def test_repository_has_no_retired_version_layers(self):
         retired = [
@@ -103,6 +147,17 @@ class FrontendContractTests(unittest.TestCase):
             ["git", "ls-files"], cwd=ROOT, text=True, encoding="utf-8"
         ).splitlines()
         self.assertNotIn("AGENTS.md", tracked)
+
+    def test_real_service_config_is_ignored(self):
+        ignored = subprocess.run(
+            ["git", "check-ignore", "config.json"], cwd=ROOT,
+            text=True, encoding="utf-8", capture_output=True,
+        )
+        self.assertEqual(ignored.returncode, 0)
+        tracked = subprocess.check_output(
+            ["git", "ls-files", "config.json"], cwd=ROOT, text=True, encoding="utf-8"
+        ).strip()
+        self.assertEqual(tracked, "")
 
 
 if __name__ == "__main__":
