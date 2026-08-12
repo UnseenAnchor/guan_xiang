@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
-import unittest
 import datetime
+import json
+import unittest
 
-from web_server_v2 import build_chart_from_request
+from web_server_v2 import build_almanac_from_date, build_chart_from_request
 
 
 class WebRequestTests(unittest.TestCase):
@@ -109,6 +110,39 @@ class WebRequestTests(unittest.TestCase):
         titles = [item[0] for item in chart["分析"]]
         self.assertTrue(any(title.startswith("月令断语") for title in titles))
         self.assertTrue(any(title.startswith("日主性格") for title in titles))
+
+    def test_experimental_analysis_has_a_stable_evidence_schema(self):
+        chart = build_chart_from_request(self.solar_payload())
+        model = chart["实验推演"]
+        self.assertEqual(model["schema_version"], 1)
+        self.assertEqual(model["status"], "experimental")
+        self.assertEqual(
+            [item["key"] for item in model["strength"]["dimensions"]],
+            ["得令", "得地", "得势"],
+        )
+        self.assertTrue(all(item["evidence"] for item in model["strength"]["dimensions"]))
+        self.assertIn("格局候选", model["pattern"]["wording"])
+        self.assertIn("不代表唯一命理结论", model["notice"])
+
+    def test_almanac_schema_is_complete_and_json_safe(self):
+        almanac = build_almanac_from_date("2026-08-12")
+        self.assertEqual(almanac["date"]["solar"], "2026-08-12")
+        self.assertEqual(almanac["date"]["weekday"], "星期三")
+        self.assertEqual(almanac["day_officer"]["name"], "开")
+        self.assertEqual(almanac["day_officer"]["classification"], "吉")
+        self.assertEqual(almanac["ecliptic"]["type"], "黑道")
+        self.assertEqual(almanac["lodge"]["full_name"], "参水猿")
+        self.assertEqual(almanac["nine_stars"]["day"]["number"], "九")
+        self.assertTrue(almanac["activities"]["recommended"])
+        self.assertTrue(almanac["activities"]["avoided"])
+        self.assertEqual(len(almanac["directions"]), 5)
+        json.dumps(almanac, ensure_ascii=False)
+
+    def test_almanac_rejects_invalid_or_unsupported_dates(self):
+        with self.assertRaisesRegex(ValueError, "YYYY-MM-DD"):
+            build_almanac_from_date("2026/08/12")
+        with self.assertRaisesRegex(ValueError, "1900—2099"):
+            build_almanac_from_date("2100-01-01")
 
 
 if __name__ == "__main__":

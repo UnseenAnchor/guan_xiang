@@ -5,12 +5,52 @@ renderChart = function renderCompleteChart(chart) {
   renderPillars(chart);
   renderSummary(chart);
   renderRelations(chart['刑冲合会'] || []);
+  renderExperimental(chart['实验推演']);
   renderCycles(chart['大运'] || [], chart['起运'], chart['运年断语'] || {});
   renderAnnualLuck(chart['流年'] || [], chart['运年断语'] || {});
   renderSymbols(chart['神煞'] || []);
   renderKnowledge(chart['知识库']);
   renderAnalysis(chart['分析'] || []);
 };
+
+function renderExperimental(model) {
+  const root = document.querySelector('#experimental-root');
+  const summary = document.querySelector('#experimental-summary');
+  if (!model) {
+    root.innerHTML = '<p class="empty-state">实验推演数据尚未生成</p>';
+    summary.textContent = '暂无实验数据';
+    return;
+  }
+
+  const strength = model.strength || {};
+  const pattern = model.pattern || {};
+  const guidance = model.guidance || {};
+  const axis = strength.axis || { min: -2, max: 9 };
+  const axisRange = Math.max(Number(axis.max) - Number(axis.min), 1);
+  const scorePosition = Math.max(0, Math.min(100, ((Number(strength.score) - Number(axis.min)) / axisRange) * 100));
+  const joinOrDash = (items) => (items || []).length ? items.join(' · ') : '—';
+
+  summary.textContent = `模型观测：${strength.label || '未判定'} · 格局候选：${pattern.candidate || '未命中'}`;
+  root.innerHTML = `
+    <p class="model-notice"><b>边界说明</b>${escapeHTML(model.notice || '')}</p>
+    <div class="strength-sheet">
+      <div class="strength-heading"><span><small>气势轴 · 规则合计</small><b>${escapeHTML(strength.label || '未判定')}</b></span><strong>${Number(strength.score) >= 0 ? '+' : ''}${escapeHTML(strength.score ?? 0)}</strong></div>
+      <div class="strength-axis" style="--score-position:${scorePosition}%"><span>偏弱侧</span><i><b></b></i><span>偏强侧</span></div>
+      <div class="evidence-list">${(strength.dimensions || []).map((item) => `
+        <article><div><b>${escapeHTML(item.key)}</b><strong>${Number(item.score) >= 0 ? '+' : ''}${escapeHTML(item.score)}</strong></div><p>${escapeHTML(item.evidence)}</p></article>`).join('')}</div>
+    </div>
+    <div class="model-grid">
+      <article class="pattern-sheet"><p class="model-kicker">${escapeHTML(pattern.wording || '程序规则命中')}</p><div><strong>${escapeHTML(pattern.candidate || '未命中')}</strong><span>${escapeHTML(pattern.label || '')}</span></div><p>${escapeHTML(pattern.evidence || '暂无对应证据')}</p></article>
+      <article class="guidance-sheet"><p class="model-kicker">取用路径 · ${escapeHTML(guidance.method || '未判定')}</p><dl>
+        <div><dt>${escapeHTML(guidance.wording?.focus || '模型建议关注')}</dt><dd>${escapeHTML(joinOrDash(guidance.focus_elements))}</dd></div>
+        <div><dt>${escapeHTML(guidance.wording?.balance || '模型提示制衡')}</dt><dd>${escapeHTML(joinOrDash(guidance.balancing_elements))}</dd></div>
+        <div><dt>调候参考天干</dt><dd>${escapeHTML(joinOrDash(guidance.climate_stems))}</dd></div>
+        <div><dt>病 / 药</dt><dd>${escapeHTML(joinOrDash(guidance.illness_elements))} / ${escapeHTML(joinOrDash(guidance.remedy_elements))}</dd></div>
+        <div><dt>通关提示</dt><dd>${escapeHTML(guidance.bridge_element || '—')}</dd></div>
+      </dl></article>
+    </div>
+    <div class="model-sources"><b>推导来源分层</b>${(model.sources || []).map((item) => `<span><i>${escapeHTML(item.layer)}</i>${escapeHTML(item.title)}</span>`).join('')}</div>`;
+}
 
 renderPillars = function renderCompletePillars(chart) {
   const subtitles = { 年: '根基', 月: '提纲', 日: '命元', 时: '归宿' };

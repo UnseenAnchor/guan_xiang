@@ -5,19 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#efe7d7">
   <meta name="description" content="支持公历、农历和离线地点搜索的本地八字排盘体验">
-  <title>观象 · 八字排盘</title>
+  <title>命盘 · 观人｜观象</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;500;600;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/styles.css">
-  <link rel="stylesheet" href="/styles_v2.css">
-  <link rel="stylesheet" href="/styles_v3.css">
+  <link rel="stylesheet" href="/styles.css?v=0.3.0">
+  <link rel="stylesheet" href="/styles_v2.css?v=0.3.0">
+  <link rel="stylesheet" href="/styles_v3.css?v=0.3.0">
 </head>
 <body>
   <div class="paper-noise" aria-hidden="true"></div>
   <header class="site-header">
     <a class="brand" href="#top" aria-label="观象首页"><span class="brand-seal">象</span><span class="brand-name">观象<small>八字排盘</small></span></a>
-    <div class="header-note"><i></i> 本地推演 · 数据不出此机</div>
+    <div class="header-actions">
+      <nav class="site-nav" aria-label="主要功能"><a class="active" href="/" aria-current="page"><b>命盘</b><small>观人</small></a><a href="/almanac"><b>黄历</b><small>观时</small></a></nav>
+      <div class="header-note"><i></i> 本地推演 · 数据不出此机</div>
+    </div>
   </header>
 
   <main id="top">
@@ -94,29 +97,38 @@
     </section>
 
     <section class="result-shell" id="result-shell" hidden aria-live="polite">
-      <div class="result-heading reveal"><div><p class="section-kicker">命盘总览 / CHART</p><h2 id="chart-title"></h2></div><div class="chart-meta" id="chart-meta"></div></div>
+      <div class="result-heading reveal" id="section-overview"><div><p class="section-kicker">命盘总览 / CHART</p><h2 id="chart-title"></h2></div><div class="chart-meta" id="chart-meta"></div></div>
+      <nav class="chart-nav reveal" aria-label="命盘章节">
+        <a href="#section-overview">总览</a><a href="#section-elements">五行</a><a href="#section-relations">刑冲合会</a><a href="#section-experimental">实验推演</a><a href="#section-cycles">大运</a><a href="#annual-section">流年</a><a href="#section-symbols">神煞</a><a href="#section-references">古籍参照</a>
+      </nav>
       <div class="chart-stage reveal" id="pillar-chart"></div>
       <section class="summary-grid reveal" aria-label="命盘摘要">
         <article class="day-master-card"><p>日主 · 命元</p><div class="day-master-content"><strong id="day-master"></strong><div><b id="day-master-element"></b><span>以日干为我，统观全局</span></div></div><div class="mini-facts" id="mini-facts"></div></article>
-        <article class="element-card"><div class="article-title"><p>五行观测</p><small>含四柱与藏干</small></div><div id="element-balance" class="element-balance"></div><p class="card-caption">数量仅作结构展示，不等同于身强弱或喜用神判断。</p></article>
+        <article class="element-card" id="section-elements"><div class="article-title"><p>五行观测</p><small>含四柱与藏干</small></div><div id="element-balance" class="element-balance"></div><p class="card-caption">数量仅作结构展示，不等同于身强弱或喜用神判断。</p></article>
         <article class="solar-card" id="solar-card"><div class="sun-mark" aria-hidden="true">日</div><p id="time-mode-title">排盘口径</p><div class="solar-time"><span id="solar-original">—</span><i></i><strong id="solar-corrected">—</strong></div><p class="correction" id="solar-correction"></p><div class="solar-comparison" id="solar-comparison" hidden></div></article>
       </section>
-      <section class="content-section reveal"><div class="section-heading"><div><p class="section-kicker">气的牵引 / RELATIONS</p><h2>刑冲合会</h2></div><p>四柱之间的结合、冲动与会聚关系</p></div><div class="relation-list" id="relation-list"></div></section>
-      <section class="content-section reveal"><div class="section-heading"><div><p class="section-kicker">十年一章 / CYCLES</p><h2>大运流转</h2></div><p id="cycle-note"></p></div><div class="cycle-track-wrap"><div class="cycle-track" id="cycle-track"></div></div></section>
+      <section class="content-section reveal" id="section-relations"><div class="section-heading"><div><p class="section-kicker">气的牵引 / RELATIONS</p><h2>刑冲合会</h2></div><p>四柱之间的结合、冲动与会聚关系</p></div><div class="relation-list" id="relation-list"></div></section>
+      <section class="content-section experimental-section reveal" id="section-experimental">
+        <details class="experimental-panel">
+          <summary><span><i>试</i><small>实验模型 / EXPERIMENT</small><b>旺衰、格局与取用推演</b></span><em id="experimental-summary">展开查看推导依据</em></summary>
+          <div id="experimental-root" class="experimental-root"></div>
+        </details>
+      </section>
+      <section class="content-section reveal" id="section-cycles"><div class="section-heading"><div><p class="section-kicker">十年一章 / CYCLES</p><h2>大运流转</h2></div><p id="cycle-note"></p></div><div class="cycle-track-wrap"><div class="cycle-track" id="cycle-track"></div></div></section>
       <section class="content-section reveal" id="annual-section">
         <div class="section-heading"><div><p class="section-kicker">岁序流转 / ANNUAL</p><h2>未来五年流年</h2></div><p id="annual-note">以当前年份为起点</p></div>
         <div class="annual-track" id="annual-track"></div>
       </section>
       <section class="dual-section reveal">
-        <div class="content-section shensha-section"><div class="section-heading compact"><div><p class="section-kicker">星曜标记 / SYMBOLS</p><h2>神煞</h2></div><span class="count-badge" id="shensha-count">0</span></div><div class="symbol-list" id="symbol-list"></div></div>
-        <div class="content-section analysis-section"><div class="section-heading compact"><div><p class="section-kicker">古籍断语 / NOTES</p><h2>命理札记</h2></div></div><div class="analysis-list" id="analysis-list"></div></div>
+        <div class="content-section shensha-section" id="section-symbols"><div class="section-heading compact"><div><p class="section-kicker">星曜标记 / SYMBOLS</p><h2>神煞</h2></div><span class="count-badge" id="shensha-count">0</span></div><div class="symbol-list" id="symbol-list"></div></div>
+        <div class="content-section analysis-section" id="section-references"><div class="section-heading compact"><div><p class="section-kicker">古籍断语 / NOTES</p><h2>命理札记</h2></div></div><div class="analysis-list" id="analysis-list"></div></div>
       </section>
       <p class="disclaimer reveal">本页内容源自传统命理知识库，仅供文化研究与娱乐体验，不构成医疗、法律、投资或人生决策建议。地点数据仅在本机搜索，不会发送给地图服务。</p>
     </section>
   </main>
   <footer><span>观象 · BAZI ENGINE</span><p>历法有序，人生常新。</p></footer>
   <template id="loading-template"><div class="loading-oracle" aria-label="正在排盘"><i></i><span>推演中</span><i></i></div></template>
-  <script src="/app_v2.js" defer></script>
-  <script src="/app_v3.js" defer></script>
+  <script src="/app_v2.js?v=0.3.0" defer></script>
+  <script src="/app_v3.js?v=0.3.0" defer></script>
 </body>
 </html>
