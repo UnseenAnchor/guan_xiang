@@ -102,37 +102,37 @@
     </section>
 
     <section class="result-shell" id="result-shell" hidden aria-live="polite">
+      <div class="result-layout">
+      <nav class="chart-nav" aria-label="命盘目录">
+        <div class="chart-nav-heading"><span>命盘目录</span><small>CHAPTERS</small></div>
+        <div class="chart-nav-group">
+          <p>排盘事实</p>
+          <a href="#section-overview"><i>一</i><span>命盘总览</span></a>
+          <a href="#section-elements"><i>二</i><span>五行观测</span></a>
+          <a href="#section-relations"><i>三</i><span>刑冲合会</span></a>
+          <a href="#section-cycles"><i>四</i><span>大运流转</span></a>
+          <a href="#annual-section"><i>五</i><span>流年岁序</span></a>
+          <a href="#section-symbols"><i>六</i><span>神煞标记</span></a>
+          <a href="#section-references"><i>七</i><span>古籍参照</span></a>
+        </div>
+        <div class="chart-nav-group chart-nav-research">
+          <p>参研内容</p>
+          <a href="#section-experimental"><i>研</i><span>规则推演</span><small>实验</small></a>
+          <a href="#section-ai"><i>解</i><span>AI 讲解</span><small>联网</small></a>
+        </div>
+      </nav>
+      <div class="result-content">
       <div class="result-heading reveal" id="section-overview">
         <div><p class="section-kicker">命盘总览 / CHART</p><h2 id="chart-title"></h2></div>
         <div class="result-side"><div class="chart-meta" id="chart-meta"></div><div class="export-actions" aria-label="导出命盘"><button type="button" data-export="md">导出 MD</button><button type="button" data-export="txt">导出 TXT</button></div></div>
       </div>
-      <nav class="chart-nav reveal" aria-label="命盘章节">
-        <a href="#section-overview">总览</a><a href="#section-elements">五行</a><a href="#section-ai">AI 讲解</a><a href="#section-relations">刑冲合会</a><a href="#section-experimental">实验推演</a><a href="#section-cycles">大运</a><a href="#annual-section">流年</a><a href="#section-symbols">神煞</a><a href="#section-references">古籍参照</a>
-      </nav>
       <div class="chart-stage reveal" id="pillar-chart"></div>
       <section class="summary-grid reveal" aria-label="命盘摘要">
         <article class="day-master-card"><p>日主 · 命元</p><div class="day-master-content"><strong id="day-master"></strong><div><b id="day-master-element"></b><span>以日干为我，统观全局</span></div></div><div class="mini-facts" id="mini-facts"></div></article>
         <article class="element-card" id="section-elements"><div class="article-title"><p>五行观测</p><small>含四柱与藏干</small></div><div id="element-balance" class="element-balance"></div><p class="card-caption">数量仅作结构展示，不等同于身强弱或喜用神判断。</p></article>
         <article class="solar-card" id="solar-card"><div class="sun-mark" aria-hidden="true">日</div><p id="time-mode-title">排盘口径</p><div class="solar-time"><span id="solar-original">—</span><i></i><strong id="solar-corrected">—</strong></div><p class="correction" id="solar-correction"></p><div class="solar-comparison" id="solar-comparison" hidden></div></article>
       </section>
-      <section class="content-section ai-section reveal" id="section-ai">
-        <div class="section-heading"><div><p class="section-kicker">智能释读 / AI ANALYSIS</p><h2>命盘讲解 Agent</h2></div><p>仅在你主动点击后，将不含姓名、出生地和坐标的命盘结构发送至第三方 AI 服务。</p></div>
-        <div class="ai-agent-card">
-          <div class="ai-agent-intro"><span class="agent-seal">解</span><div><b>从命盘骨架到阶段观察</b><p>区分排盘事实、古籍参照与实验推演，不重新计算四柱。</p></div><button type="button" id="generate-explanation">生成命盘讲解</button></div>
-          <p class="ai-status" id="ai-status" role="status" aria-live="polite">此功能会调用第三方模型 API，排盘与导出功能不受影响。</p>
-          <details class="ai-explanation" id="ai-explanation" hidden open>
-            <summary><span>AI 命盘讲解</span></summary>
-            <article class="ai-explanation-body" id="ai-explanation-body"></article>
-          </details>
-        </div>
-      </section>
       <section class="content-section reveal" id="section-relations"><div class="section-heading"><div><p class="section-kicker">气的牵引 / RELATIONS</p><h2>刑冲合会</h2></div><p>四柱之间的结合、冲动与会聚关系</p></div><div class="relation-list" id="relation-list"></div></section>
-      <section class="content-section experimental-section reveal" id="section-experimental">
-        <details class="experimental-panel">
-          <summary><span><i>推</i><b>旺衰与取用推演</b><small>本部分基于综合规则分析，不同命理流派可能存在不同结论。</small></span><em id="experimental-summary">展开查看推导依据</em></summary>
-          <div id="experimental-root" class="experimental-root"></div>
-        </details>
-      </section>
       <section class="content-section reveal" id="section-cycles"><div class="section-heading"><div><p class="section-kicker">十年一章 / CYCLES</p><h2>大运流转</h2></div><p id="cycle-note"></p></div><div class="cycle-track-wrap"><div class="cycle-track" id="cycle-track"></div></div></section>
       <section class="content-section reveal" id="annual-section">
         <div class="section-heading"><div><p class="section-kicker">岁序流转 / ANNUAL</p><h2>未来五年流年</h2></div><p id="annual-note">以当前年份为起点</p></div>
@@ -142,7 +142,29 @@
         <div class="content-section shensha-section" id="section-symbols"><div class="section-heading compact"><div><p class="section-kicker">星曜标记 / SYMBOLS</p><h2>神煞</h2></div><span class="count-badge" id="shensha-count">0</span></div><div class="symbol-list" id="symbol-list"></div></div>
         <div class="content-section analysis-section" id="section-references"><div class="section-heading compact"><div><p class="section-kicker">古籍断语 / NOTES</p><h2>命理札记</h2></div></div><div class="analysis-list" id="analysis-list"></div></div>
       </section>
+      <section class="research-zone reveal" aria-labelledby="research-title">
+        <div class="research-heading"><div><p class="section-kicker">参研附卷 / RESEARCH</p><h2 id="research-title">推演与智能释读</h2></div><p>以下内容带有规则假设或生成性质，与上方排盘事实分开展示，宜作参考而非定论。</p></div>
+        <section class="experimental-section" id="section-experimental">
+          <details class="experimental-panel">
+            <summary><span><i>推</i><b>旺衰与取用推演</b><small>本部分基于综合规则分析，不同命理流派可能存在不同结论。</small></span><em id="experimental-summary">展开查看推导依据</em></summary>
+            <div id="experimental-root" class="experimental-root"></div>
+          </details>
+        </section>
+        <section class="ai-section" id="section-ai">
+          <div class="section-heading"><div><p class="section-kicker">智能释读 / AI ANALYSIS</p><h2>命盘讲解 Agent</h2></div><p>仅在你主动点击后，将性别、四柱、大运、流年等排盘结果发送至第三方 AI 服务；出生日期、出生地和坐标不会发送。</p></div>
+          <div class="ai-agent-card">
+            <div class="ai-agent-intro"><span class="agent-seal">解</span><div><b>从命盘骨架到阶段观察</b><p>区分排盘事实、古籍参照与实验推演，不重新计算四柱。</p></div><button type="button" id="generate-explanation">生成命盘讲解</button></div>
+            <p class="ai-status" id="ai-status" role="status" aria-live="polite">此功能会调用第三方模型 API，排盘与导出功能不受影响。</p>
+            <details class="ai-explanation" id="ai-explanation" hidden open>
+              <summary><span>AI 命盘讲解</span></summary>
+              <article class="ai-explanation-body" id="ai-explanation-body"></article>
+            </details>
+          </div>
+        </section>
+      </section>
       <p class="disclaimer reveal">本页内容源自传统命理知识库，仅供文化研究与娱乐体验，不构成医疗、法律、投资或人生决策建议。排盘、地点搜索与文档导出均在本机完成；只有用户主动生成 AI 讲解时，裁剪后的命盘结构才会发送至第三方 AI 服务。</p>
+      </div>
+      </div>
     </section>
   </main>
   <footer><span>观象 · BAZI ENGINE</span><p>历法有序，人生常新。</p></footer>

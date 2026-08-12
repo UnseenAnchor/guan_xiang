@@ -50,6 +50,7 @@ async function readJsonResponse(response) {
 init();
 
 async function init() {
+  initializeChapterNav();
   fillSolarSelects();
   fillLunarSelects();
   syncCalendarMode();
@@ -60,6 +61,32 @@ async function init() {
   } catch (error) {
     locationStatus.innerHTML = `<i></i> ${escapeHTML(error.message)}，仍可手动填写经度`;
   }
+}
+
+function initializeChapterNav() {
+  const links = [...document.querySelectorAll('.chart-nav a[href^="#"]')];
+  const sections = links.map((link) => document.querySelector(link.getAttribute('href'))).filter(Boolean);
+  const setActive = (id) => links.forEach((link) => {
+    const active = link.getAttribute('href') === `#${id}`;
+    link.classList.toggle('active', active);
+    if (active) link.setAttribute('aria-current', 'location');
+    else link.removeAttribute('aria-current');
+  });
+  links.forEach((link) => link.addEventListener('click', (event) => {
+    event.preventDefault();
+    const target = document.querySelector(link.getAttribute('href'));
+    if (!target) return;
+    setActive(target.id);
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    history.replaceState(null, '', link.hash);
+  }));
+  if (!('IntersectionObserver' in window)) return;
+  const observer = new IntersectionObserver((entries) => {
+    const visible = entries.filter((entry) => entry.isIntersecting)
+      .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+    if (visible) setActive(visible.target.id);
+  }, { rootMargin: '-12% 0px -68% 0px', threshold: 0 });
+  sections.forEach((section) => observer.observe(section));
 }
 
 function fillSolarSelects() {
