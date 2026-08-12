@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import pathlib
 import re
+import subprocess
 import unittest
 
 
@@ -10,10 +11,7 @@ ROOT = pathlib.Path(__file__).parents[1]
 class FrontendContractTests(unittest.TestCase):
     def test_static_dom_contains_all_render_targets(self):
         html = (ROOT / "web" / "index.html").read_text(encoding="utf-8")
-        scripts = "\n".join(
-            (ROOT / "web" / name).read_text(encoding="utf-8")
-            for name in ("app_v2.js", "app_v3.js")
-        )
+        scripts = (ROOT / "web" / "app.js").read_text(encoding="utf-8")
         html_ids = set(re.findall(r'\bid="([^"]+)"', html))
         queried_ids = set(re.findall(r"querySelector\('#([^']+)'\)", scripts))
         dynamic_ids = {"knowledge-panel"}
@@ -26,20 +24,20 @@ class FrontendContractTests(unittest.TestCase):
         self.assertNotIn("checked", tag.group(0))
         self.assertIn('id="annual-track"', html)
 
-    def test_default_page_loads_current_v3_assets_once(self):
+    def test_default_page_loads_canonical_assets_once(self):
         html = (ROOT / "web" / "index.html").read_text(encoding="utf-8")
-        self.assertEqual(html.count('href="/styles_v3.css?v=0.3.0"'), 1)
-        self.assertEqual(html.count('src="/app_v3.js?v=0.3.0"'), 1)
-        self.assertEqual(html.count('?v=0.3.0'), 5)
+        self.assertEqual(html.count('href="/styles.css?v=0.3.1"'), 1)
+        self.assertEqual(html.count('src="/app.js?v=0.3.1"'), 1)
+        self.assertEqual(html.count('?v=0.3.1'), 2)
 
-    def test_default_server_delegates_to_current_handler(self):
-        from web_server import BaziRequestHandler
-        from web_server_v3 import BaziV3RequestHandler
+    def test_default_server_exports_canonical_contract(self):
+        import web_server
 
-        self.assertIs(BaziRequestHandler, BaziV3RequestHandler)
+        for name in ("BaziRequestHandler", "build_chart_from_request", "build_almanac_from_date"):
+            self.assertTrue(hasattr(web_server, name))
 
     def test_location_status_follows_true_solar_time_opt_in(self):
-        script = (ROOT / "web" / "app_v2.js").read_text(encoding="utf-8")
+        script = (ROOT / "web" / "app.js").read_text(encoding="utf-8")
         self.assertIn("function syncLocationStatus()", script)
         self.assertIn("真太阳时未启用", script)
         self.assertIn("trueSolarInput.checked ? '将用于真太阳时校正'", script)
@@ -48,7 +46,7 @@ class FrontendContractTests(unittest.TestCase):
 
     def test_chart_has_section_navigation_and_experimental_panel(self):
         html = (ROOT / "web" / "index.html").read_text(encoding="utf-8")
-        script = (ROOT / "web" / "app_v3.js").read_text(encoding="utf-8")
+        script = (ROOT / "web" / "app.js").read_text(encoding="utf-8")
         self.assertIn('href="#section-experimental"', html)
         self.assertIn('id="experimental-root"', html)
         self.assertRegex(html, r'<details class="experimental-panel">')
@@ -62,9 +60,27 @@ class FrontendContractTests(unittest.TestCase):
         queried_ids = set(re.findall(r"querySelector\('#([^']+)'\)", script))
         self.assertEqual(queried_ids - html_ids, set())
         self.assertIn('href="/almanac" aria-current="page"', html)
-        self.assertEqual(html.count('src="/almanac.js?v=0.3.0"'), 1)
-        self.assertEqual(html.count('href="/almanac.css?v=0.3.0"'), 1)
-        self.assertEqual(html.count('?v=0.3.0'), 3)
+        self.assertEqual(html.count('src="/almanac.js?v=0.3.1"'), 1)
+        self.assertEqual(html.count('href="/almanac.css?v=0.3.1"'), 1)
+        self.assertEqual(html.count('?v=0.3.1'), 3)
+
+    def test_repository_has_no_retired_version_layers(self):
+        retired = [
+            ROOT / "web_server_v2.py", ROOT / "web_server_v3.py",
+            ROOT / "web" / "app_v2.js", ROOT / "web" / "app_v3.js",
+            ROOT / "web" / "styles_v2.css", ROOT / "web" / "styles_v3.css",
+            ROOT / "web" / "index_v2.html",
+            ROOT / "scripts" / "build_locations_v2.py",
+            ROOT / "scripts" / "build_locations_v3.py",
+            ROOT / "scripts" / "validate_cybz_knowledge.py",
+            ROOT / "WEB-README.md", ROOT / "WEB-V2.md", ROOT / "WEB-V3.md",
+        ]
+        self.assertEqual([str(path.relative_to(ROOT)) for path in retired if path.exists()], [])
+        self.assertEqual([path.name for path in ROOT.glob("web_server*.py")], ["web_server.py"])
+        tracked = subprocess.check_output(
+            ["git", "ls-files"], cwd=ROOT, text=True, encoding="utf-8"
+        ).splitlines()
+        self.assertNotIn("AGENTS.md", tracked)
 
 
 if __name__ == "__main__":

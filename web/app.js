@@ -258,12 +258,6 @@ form.addEventListener('submit', async (event) => {
   }
 });
 
-function renderChart(chart) {
-  renderHeading(chart); renderPillars(chart); renderSummary(chart);
-  renderRelations(chart['刑冲合会'] || []); renderCycles(chart['大运'] || [], chart['起运']);
-  renderSymbols(chart['神煞'] || []); renderAnalysis(chart['分析'] || []);
-}
-
 function renderHeading(chart) {
   const lunar = cleanText(chart['农历']);
   const shortLunar = lunar.replace(/^[〇零一二三四五六七八九]{4}年/, '');
@@ -275,16 +269,6 @@ function renderHeading(chart) {
     ? `<br><span class="meta-location">${escapeHTML(chart['出生地']['名称'])} · ${chart['出生地']['经度'].toFixed(4)}° E</span>`
     : '<br><span>未填写出生地 · 标准时间</span>';
   document.querySelector('#chart-meta').innerHTML = `${source}<br>${escapeHTML(chart['输入']['性别'])} · 生肖 ${escapeHTML(chart['生肖'])}${location}`;
-}
-
-function renderPillars(chart) {
-  const subtitles = { 年: '根基', 月: '提纲', 日: '命元', 时: '归宿' };
-  document.querySelector('#pillar-chart').innerHTML = ['年', '月', '日', '时'].map((name) => {
-    const pillar = chart['四柱'][name];
-    const hidden = (pillar['藏干'] || []).join(' · ');
-    const hiddenGods = (pillar['十神(藏干)'] || []).join(' · ');
-    return `<article class="pillar"><div class="pillar-label">${name}柱 · ${subtitles[name]}</div><div class="pillar-gz"><span>${escapeHTML(pillar['天干'])}</span><span>${escapeHTML(pillar['地支'])}</span></div><div class="pillar-ten">${escapeHTML(pillar['十神(天干)'])}</div><dl class="pillar-detail"><div><dt>藏干</dt><dd title="${escapeHTML(hiddenGods)}">${escapeHTML(hidden)}</dd></div><div><dt>纳音</dt><dd>${escapeHTML(pillar['纳音'])}</dd></div><div><dt>长生</dt><dd>${escapeHTML(pillar['长生'])}</dd></div><div><dt>空亡</dt><dd>${escapeHTML((pillar['空亡'] || []).join(''))}</dd></div></dl></article>`;
-  }).join('');
 }
 
 function renderSummary(chart) {
@@ -327,33 +311,10 @@ function renderSummary(chart) {
   }
 }
 
-function renderElements(chart) {
-  const count = { 木: 0, 火: 0, 土: 0, 金: 0, 水: 0 };
-  Object.values(chart['四柱']).forEach((pillar) => {
-    if (count[pillar['干五行']] !== undefined) count[pillar['干五行']] += 1;
-    if (count[pillar['支五行']] !== undefined) count[pillar['支五行']] += 1;
-    (pillar['藏干五行'] || []).forEach((element) => { if (count[element] !== undefined) count[element] += 1; });
-  });
-  const max = Math.max(...Object.values(count), 1);
-  const container = document.querySelector('#element-balance');
-  container.innerHTML = Object.entries(count).map(([element, amount]) => `<div class="element-row" style="--element-color:${ELEMENT_COLORS[element]}"><b>${element}</b><div class="element-bar"><i data-width="${(amount / max) * 100}%"></i></div><span>${amount}</span></div>`).join('');
-  requestAnimationFrame(() => container.querySelectorAll('.element-bar i').forEach((bar) => { bar.style.width = bar.dataset.width; }));
-}
-
 function renderRelations(relations) {
   const list = document.querySelector('#relation-list');
   if (!relations.length) { list.innerHTML = '<p class="empty-state">四柱之间未检出明显的刑冲合会关系</p>'; return; }
   list.innerHTML = relations.map(([kind, where, stems, note], index) => `<article class="relation-item"><div class="relation-kind"><i>${index + 1}</i>${escapeHTML(kind)}</div><p><strong>${escapeHTML(where)}</strong> · ${escapeHTML(stems)}<br>${escapeHTML(note)}</p></article>`).join('');
-}
-
-function renderCycles(cycles, startAge) {
-  const useful = cycles.filter((cycle) => cycle && cycle['干支']);
-  document.querySelector('#cycle-note').textContent = `起运 ${startAge ?? '—'} 岁 · 左右滑动查看`;
-  const currentYear = new Date().getFullYear();
-  document.querySelector('#cycle-track').innerHTML = useful.slice(0, 10).map((cycle) => {
-    const active = currentYear >= cycle['起年'] && currentYear <= cycle['终年'];
-    return `<article class="cycle${active ? ' active' : ''}"><span class="cycle-index">第 ${escapeHTML(cycle['序'])} 运${active ? ' · 当下' : ''}</span><strong>${escapeHTML(cycle['干支'])}</strong><p>${escapeHTML(cycle['年龄'])} 岁<br>${escapeHTML(cycle['起年'])}—${escapeHTML(cycle['终年'])}</p></article>`;
-  }).join('');
 }
 
 function renderSymbols(symbols) {
@@ -361,10 +322,189 @@ function renderSymbols(symbols) {
   document.querySelector('#symbol-list').innerHTML = symbols.length ? symbols.map(([name, where, detail]) => `<div class="symbol"><b>${escapeHTML(name)}</b><span>${escapeHTML(where)}</span><small>${escapeHTML(detail || '古法标记')}</small></div>`).join('') : '<p class="empty-state">未检出神煞标记</p>';
 }
 
+function renderChart(chart) {
+  renderHeading(chart);
+  renderPillars(chart);
+  renderSummary(chart);
+  renderRelations(chart['刑冲合会'] || []);
+  renderExperimental(chart['实验推演']);
+  renderCycles(chart['大运'] || [], chart['起运'], chart['运年断语'] || {});
+  renderAnnualLuck(chart['流年'] || [], chart['运年断语'] || {});
+  renderSymbols(chart['神煞'] || []);
+  renderKnowledge(chart['知识库']);
+  renderAnalysis(chart['分析'] || []);
+}
+
+function renderExperimental(model) {
+  const root = document.querySelector('#experimental-root');
+  const summary = document.querySelector('#experimental-summary');
+  if (!model) {
+    root.innerHTML = '<p class="empty-state">实验推演数据尚未生成</p>';
+    summary.textContent = '暂无实验数据';
+    return;
+  }
+
+  const strength = model.strength || {};
+  const pattern = model.pattern || {};
+  const guidance = model.guidance || {};
+  const axis = strength.axis || { min: -2, max: 9 };
+  const axisRange = Math.max(Number(axis.max) - Number(axis.min), 1);
+  const scorePosition = Math.max(0, Math.min(100, ((Number(strength.score) - Number(axis.min)) / axisRange) * 100));
+  const joinOrDash = (items) => (items || []).length ? items.join(' · ') : '—';
+
+  summary.textContent = `模型观测：${strength.label || '未判定'} · 格局候选：${pattern.candidate || '未命中'}`;
+  root.innerHTML = `
+    <p class="model-notice"><b>边界说明</b>${escapeHTML(model.notice || '')}</p>
+    <div class="strength-sheet">
+      <div class="strength-heading"><span><small>气势轴 · 规则合计</small><b>${escapeHTML(strength.label || '未判定')}</b></span><strong>${Number(strength.score) >= 0 ? '+' : ''}${escapeHTML(strength.score ?? 0)}</strong></div>
+      <div class="strength-axis" style="--score-position:${scorePosition}%"><span>偏弱侧</span><i><b></b></i><span>偏强侧</span></div>
+      <div class="evidence-list">${(strength.dimensions || []).map((item) => `
+        <article><div><b>${escapeHTML(item.key)}</b><strong>${Number(item.score) >= 0 ? '+' : ''}${escapeHTML(item.score)}</strong></div><p>${escapeHTML(item.evidence)}</p></article>`).join('')}</div>
+    </div>
+    <div class="model-grid">
+      <article class="pattern-sheet"><p class="model-kicker">${escapeHTML(pattern.wording || '程序规则命中')}</p><div><strong>${escapeHTML(pattern.candidate || '未命中')}</strong><span>${escapeHTML(pattern.label || '')}</span></div><p>${escapeHTML(pattern.evidence || '暂无对应证据')}</p></article>
+      <article class="guidance-sheet"><p class="model-kicker">取用路径 · ${escapeHTML(guidance.method || '未判定')}</p><dl>
+        <div><dt>${escapeHTML(guidance.wording?.focus || '模型建议关注')}</dt><dd>${escapeHTML(joinOrDash(guidance.focus_elements))}</dd></div>
+        <div><dt>${escapeHTML(guidance.wording?.balance || '模型提示制衡')}</dt><dd>${escapeHTML(joinOrDash(guidance.balancing_elements))}</dd></div>
+        <div><dt>调候参考天干</dt><dd>${escapeHTML(joinOrDash(guidance.climate_stems))}</dd></div>
+        <div><dt>病 / 药</dt><dd>${escapeHTML(joinOrDash(guidance.illness_elements))} / ${escapeHTML(joinOrDash(guidance.remedy_elements))}</dd></div>
+        <div><dt>通关提示</dt><dd>${escapeHTML(guidance.bridge_element || '—')}</dd></div>
+      </dl></article>
+    </div>
+    <div class="model-sources"><b>推导来源分层</b>${(model.sources || []).map((item) => `<span><i>${escapeHTML(item.layer)}</i>${escapeHTML(item.title)}</span>`).join('')}</div>`;
+}
+
+function renderPillars(chart) {
+  const subtitles = { 年: '根基', 月: '提纲', 日: '命元', 时: '归宿' };
+  document.querySelector('#pillar-chart').innerHTML = ['年', '月', '日', '时'].map((name) => {
+    const pillar = chart['四柱'][name];
+    const hiddenStems = (pillar['藏干'] || []).map((stem, index) => {
+      const gods = (pillar['十神(藏干)'] || [])[index] || '—';
+      const element = (pillar['藏干五行'] || [])[index] || '';
+      const polarity = GAN_ELEMENT[stem]?.[1] || '';
+      return `<span class="hidden-stem"><b>${escapeHTML(stem)}</b><em>${escapeHTML(polarity + element)}</em><small>${escapeHTML(gods)}</small></span>`;
+    }).join('');
+    return `
+      <article class="pillar pillar-complete">
+        <div class="pillar-label">${name}柱 · ${subtitles[name]}</div>
+        <div class="pillar-gz"><span>${escapeHTML(pillar['天干'])}</span><span>${escapeHTML(pillar['地支'])}</span></div>
+        <div class="pillar-ten">天干十神 · ${escapeHTML(pillar['十神(天干)'])}</div>
+        <div class="stem-branch-nature">
+          <span><small>天干</small><b>${escapeHTML(pillar['干阴阳'] + pillar['干五行'])}</b></span>
+          <span><small>地支</small><b>${escapeHTML(pillar['支阴阳'] + pillar['支五行'])} · ${escapeHTML(pillar['生肖'])}</b></span>
+        </div>
+        <div class="hidden-stems"><p>藏干 · 五行 · 十神</p>${hiddenStems}</div>
+        <dl class="pillar-detail pillar-detail-complete">
+          <div><dt>纳音</dt><dd>${escapeHTML(pillar['纳音'])}<small>${escapeHTML(pillar['纳音简'] || '')}</small></dd></div>
+          <div><dt>空亡</dt><dd>${escapeHTML((pillar['空亡'] || []).join(' · '))}</dd></div>
+          <div><dt>长生</dt><dd>${escapeHTML(pillar['长生'])}</dd></div>
+        </dl>
+      </article>`;
+  }).join('');
+}
+
+function renderElements(chart) {
+  const elementOrder = ['木', '火', '土', '金', '水'];
+  const counts = Object.fromEntries(elementOrder.map((element) => [element, { stem: 0, branch: 0, hidden: 0, total: 0 }]));
+  Object.values(chart['四柱']).forEach((pillar) => {
+    if (counts[pillar['干五行']]) counts[pillar['干五行']].stem += 1;
+    if (counts[pillar['支五行']]) counts[pillar['支五行']].branch += 1;
+    (pillar['藏干五行'] || []).forEach((element) => { if (counts[element]) counts[element].hidden += 1; });
+  });
+  Object.values(counts).forEach((item) => { item.total = item.stem + item.branch + item.hidden; });
+  const max = Math.max(...Object.values(counts).map((item) => item.total), 1);
+  const container = document.querySelector('#element-balance');
+  container.innerHTML = `
+    <div class="element-table-head"><span>五行</span><span>结构占比</span><span>天干</span><span>地支</span><span>藏干</span><span>合计</span></div>
+    ${elementOrder.map((element) => {
+      const item = counts[element];
+      return `<div class="element-row element-row-complete" style="--element-color:${ELEMENT_COLORS[element]}">
+        <b>${element}</b><div class="element-bar"><i data-width="${(item.total / max) * 100}%"></i></div>
+        <span>${item.stem}</span><span>${item.branch}</span><span>${item.hidden}</span><strong>${item.total}</strong>
+      </div>`;
+    }).join('')}`;
+  requestAnimationFrame(() => container.querySelectorAll('.element-bar i').forEach((bar) => { bar.style.width = bar.dataset.width; }));
+}
+
+function renderCycles(cycles, startAge, analyses) {
+  const useful = cycles.filter((cycle) => cycle && cycle['干支']);
+  const readings = new Map((analyses['大运'] || []).map((item) => [item['干支'], item['断语']]));
+  const classicalReadings = new Map((analyses['三命通会'] || []).map((item) => [item['干支'], item['断语']]));
+  document.querySelector('#cycle-note').textContent = `起运 ${startAge ?? '—'} 岁 · 共 ${useful.length} 步有效大运，已全部展开`;
+  const currentYear = new Date().getFullYear();
+  const track = document.querySelector('#cycle-track');
+  track.className = 'cycle-track dayun-complete';
+  track.innerHTML = useful.map((cycle) => {
+    const active = currentYear >= cycle['起年'] && currentYear <= cycle['终年'];
+    const readingParts = cleanText(readings.get(cycle['干支']) || '暂无对应断语').split(/\s*\|\s*|\n+/).filter(Boolean);
+    const classical = classicalReadings.get(cycle['干支']);
+    return `
+      <article class="dayun-card${active ? ' active' : ''}">
+        <div class="dayun-order"><span>第 ${escapeHTML(cycle['序'])} 运</span>${active ? '<b>当下所行</b>' : ''}</div>
+        <div class="dayun-main"><strong>${escapeHTML(cycle['干支'])}</strong><div><b>${escapeHTML(cycle['年龄'])} 岁</b><span>${escapeHTML(cycle['起年'])}—${escapeHTML(cycle['终年'])}</span></div></div>
+        <div class="dayun-reading">
+          ${readingParts.map((part, index) => `<p${index === 0 ? ' class="reading-summary"' : ''}>${escapeHTML(part)}</p>`).join('')}
+          ${classical ? `<details class="reference-block"><summary>《三命通会》古籍参照</summary><p>${escapeHTML(cleanText(classical))}</p></details>` : ''}
+        </div>
+      </article>`;
+  }).join('');
+}
+
+function renderAnnualLuck(years, analyses) {
+  const readings = new Map((analyses['流年'] || []).map((item) => [String(item['年']), item['断语']]));
+  const classical = new Map((analyses['三命通会流年'] || []).map((item) => [item['干支'], item['断语']]));
+  const currentYear = new Date().getFullYear();
+  const note = document.querySelector('#annual-note');
+  const track = document.querySelector('#annual-track');
+  note.textContent = years.length ? `${years[0]['年']}—${years[years.length - 1]['年']} · 以当前年份为起点` : '暂无流年数据';
+  track.innerHTML = years.map((item) => {
+    const active = Number(item['年']) === currentYear;
+    const reading = readings.get(String(item['年'])) || '暂无对应规则说明';
+    const source = classical.get(item['干支']);
+    return `<article class="annual-card${active ? ' active' : ''}">
+      <div class="annual-heading"><span>${escapeHTML(item['年'])}</span>${active ? '<b>今年</b>' : ''}</div>
+      <strong>${escapeHTML(item['干支'])}</strong>
+      <p>${escapeHTML(cleanText(reading))}</p>
+      ${source ? `<details class="reference-block"><summary>太岁古籍参照</summary><p>${escapeHTML(cleanText(source))}</p></details>` : ''}
+    </article>`;
+  }).join('');
+}
+
+function renderKnowledge(knowledge) {
+  const analysisSection = document.querySelector('.analysis-section');
+  let panel = document.querySelector('#knowledge-panel');
+  if (!panel) {
+    panel = document.createElement('div');
+    panel.id = 'knowledge-panel';
+    panel.className = 'knowledge-panel';
+    analysisSection.insertBefore(panel, document.querySelector('#analysis-list'));
+  }
+  if (!knowledge) {
+    panel.innerHTML = '<p>扩展知识库尚未载入</p>';
+    return;
+  }
+  const stats = knowledge['载入统计'];
+  const matches = [knowledge['月令索引']['命中'] ? knowledge['月令索引']['条目'] : null]
+    .concat(knowledge['天干五合'] || [], knowledge['关系索引'] || []).filter(Boolean);
+  panel.innerHTML = `
+    <div class="knowledge-loaded"><i></i><span>扩展知识库已载入</span><small>${stats['知识分类']} 类 · ${stats['纯文本短语']} 条短语</small></div>
+    <div class="knowledge-matches"><b>本命确定性命中</b>${matches.length ? matches.map((item) => `<span>${escapeHTML(item)}</span>`).join('') : '<small>暂无结构索引命中</small>'}</div>
+    <p>${escapeHTML(knowledge['说明'])}</p>`;
+}
+
 function renderAnalysis(analysis) {
   const container = document.querySelector('#analysis-list');
-  container.innerHTML = analysis.slice(0, 12).map(([title, body], index) => `<article class="analysis-item${index === 0 ? ' open' : ''}"><button type="button" aria-expanded="${index === 0}"><span>${escapeHTML(title)}</span><i aria-hidden="true"></i></button><div class="analysis-body">${escapeHTML(cleanText(body))}</div></article>`).join('');
+  container.innerHTML = analysis.map(([title, body], index) => {
+    const source = title.startsWith('月令断语') || title.startsWith('日主性格') ? '古籍参照' : '规则匹配';
+    return `
+    <article class="analysis-item${index === 0 ? ' open' : ''}">
+      <button type="button" aria-expanded="${index === 0}"><span>${escapeHTML(title)}<small class="source-badge">${source}</small></span><i aria-hidden="true"></i></button>
+      <div class="analysis-body">${escapeHTML(cleanText(body))}</div>
+    </article>`;
+  }).join('');
   container.querySelectorAll('.analysis-item button').forEach((button) => button.addEventListener('click', () => {
-    const item = button.closest('.analysis-item'); const open = item.classList.toggle('open'); button.setAttribute('aria-expanded', String(open));
+    const item = button.closest('.analysis-item');
+    const open = item.classList.toggle('open');
+    button.setAttribute('aria-expanded', String(open));
   }));
 }

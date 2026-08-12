@@ -20,13 +20,10 @@ def load_knowledge():
         classified = json.load(file)
     with open(os.path.join(KNOWLEDGE_ROOT, "cn_pure.json"), encoding="utf-8") as file:
         pure = json.load(file)
-    with open(os.path.join(KNOWLEDGE_ROOT, "keys.txt"), encoding="utf-8") as file:
-        keys = [line.strip() for line in file if line.strip()]
     return {
         "structured": structured,
         "classified": classified,
         "pure": pure,
-        "keys": keys,
     }
 
 
@@ -61,7 +58,6 @@ def chart_knowledge(chart):
             "性格短语": len(structured.get("性格断语", [])),
             "知识分类": len(classified),
             "纯文本短语": len(data["pure"]),
-            "检索词键": len(data["keys"]),
         },
         "月令索引": {"条目": month_key, "命中": month_key in month_entries},
         "天干五合": combinations,
@@ -73,4 +69,3 @@ def chart_knowledge(chart):
 def enrich_chart(chart):
     chart["知识库"] = chart_knowledge(chart)
     return chart
-
