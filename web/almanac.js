@@ -8,6 +8,18 @@ function escapeHTML(value) {
   return String(value ?? '').replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[char]);
 }
 
+async function readJsonResponse(response) {
+  const contentType = response.headers.get('content-type') || '';
+  if (!contentType.includes('application/json')) {
+    throw new Error(`服务端返回了非 JSON 响应（HTTP ${response.status}），请重启服务后重试`);
+  }
+  try {
+    return await response.json();
+  } catch (_error) {
+    throw new Error('服务端返回的数据格式异常，请重启服务后重试');
+  }
+}
+
 function localDateValue(date = new Date()) {
   const pad = (value) => String(value).padStart(2, '0');
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
@@ -70,7 +82,7 @@ async function loadAlmanac() {
   submitButton.querySelector('span').textContent = '展卷中';
   try {
     const response = await fetch(`/api/almanac?date=${encodeURIComponent(dateInput.value)}`);
-    const payload = await response.json();
+    const payload = await readJsonResponse(response);
     if (!response.ok || !payload.ok) throw new Error(payload.error || '暂时无法读取此日黄历');
     renderAlmanac(payload.almanac);
     result.hidden = false;

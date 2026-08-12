@@ -2,7 +2,7 @@
 
 观象是一个本地优先的四柱排盘与传统命理知识展示网页。历法计算基于 `lunar-python`，排盘规则和知识数据同步自 `CYBZ_reverse` 的已验证版本。
 
-当前版本：`0.3.2`
+当前版本：`0.4.2`
 
 ## 启动
 
@@ -12,6 +12,16 @@ python web_server.py
 ```
 
 访问 <http://127.0.0.1:8787>；黄历页面为 <http://127.0.0.1:8787/almanac>。服务端使用 Python 标准库，前端不需要构建步骤。
+
+### 配置 DeepSeek 命盘讲解
+
+复制 `config.example.json` 为 `config.json`，填写新申请的 DeepSeek API Key 后重启服务：
+
+```powershell
+Copy-Item config.example.json config.json
+```
+
+`config.json` 已被 Git 忽略，不会上传到 GitHub；也可用环境变量 `DEEPSEEK_API_KEY` 临时覆盖文件中的 Key。默认调用 DeepSeek 官方 `deepseek-chat` 模型和 `https://api.deepseek.com/chat/completions`。
 
 ## 时间与地点口径
 
@@ -32,6 +42,8 @@ python web_server.py
 - 神煞、胎元、命宫、身宫
 - 120 项月令正文、十干古籍描述及确定性知识索引
 - 默认折叠并标注边界的旺衰、格局、取用实验推演
+- 可选的 DeepSeek 命盘讲解 Agent，严格基于服务端排盘结果生成分层释读
+- 命盘可一键导出排版后的 Markdown 或 TXT 文档，导出过程完全在本机完成
 - 独立黄历页面：建除、黄道黑道、九星、二十八宿、宜忌、节气、彭祖百忌、胎神、方位与冲煞
 
 没有确定匹配规则的知识短语不会被随机归入个人命盘。五行数量只表示结构计数，不等同于旺衰或喜用神。
@@ -39,6 +51,7 @@ python web_server.py
 ## API
 
 - `POST /api/chart`：排盘结果，包含输入口径、时间对比、知识匹配和版本化实验推演。
+- `POST /api/chart-explanation`：服务端重新排盘并调用 DeepSeek 生成命盘讲解；不会发送出生日期、地点或坐标。
 - `GET /api/almanac?date=2026-08-12`：指定公历日期的黄历数据。
 - `GET /api/lunar-year?year=1990`：农历月份、天数与闰月信息。
 - `GET /api/health`：应用版本和服务状态。
@@ -93,6 +106,7 @@ web/        命盘、黄历与离线地点资源
 - 真太阳时在当前网页中仅按中国标准时间处理。
 - 《三命通会》模块是古籍条文的简化匹配，不是完整个人论命引擎。
 - 旺衰、格局、喜忌和用神只在默认折叠且明确标注的实验区域展示。
+- AI 命盘讲解需要联网并使用用户自行配置的 DeepSeek API；仅在用户主动点击时调用。
 - 桌面、平板、手机三档专项排版验收按产品安排后置；本轮只保留现有响应式规则和主流程验收。
 
 本项目用于传统文化研究与娱乐体验，不构成医疗、法律、投资或人生决策建议。
