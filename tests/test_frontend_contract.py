@@ -37,6 +37,14 @@ class FrontendContractTests(unittest.TestCase):
 
         self.assertIs(BaziRequestHandler, BaziV3RequestHandler)
 
+    def test_location_status_follows_true_solar_time_opt_in(self):
+        script = (ROOT / "web" / "app_v2.js").read_text(encoding="utf-8")
+        self.assertIn("function syncLocationStatus()", script)
+        self.assertIn("真太阳时未启用", script)
+        self.assertIn("trueSolarInput.checked ? '将用于真太阳时校正'", script)
+        self.assertIn("selectedPlace = null;\n  syncLocationStatus();", script)
+        self.assertIn("trueSolarInput.addEventListener('change', () => {\n  syncLocationStatus();", script)
+
 
 if __name__ == "__main__":
     unittest.main()
