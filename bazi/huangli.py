@@ -50,10 +50,15 @@ def get_huangli(y, m, d):
         '胎神': l.getDayPositionTai(),
         # 神位方位
         '喜神': l.getDayPositionXi(),
+        '喜神方位': l.getDayPositionXiDesc(),
         '福神': l.getDayPositionFu(),
+        '福神方位': l.getDayPositionFuDesc(),
         '财神': l.getDayPositionCai(),
+        '财神方位': l.getDayPositionCaiDesc(),
         '阳贵': l.getDayPositionYangGui(),
+        '阳贵方位': l.getDayPositionYangGuiDesc(),
         '阴贵': l.getDayPositionYinGui(),
+        '阴贵方位': l.getDayPositionYinGuiDesc(),
         # 宜忌
         '宜': l.getDayYi(),
         '忌': l.getDayJi(),
@@ -85,7 +90,8 @@ def get_jianchu_jieshi(zhi_xing):
     with open(_p, encoding='utf-8') as _f:
         d = _json.load(_f)
     luck = d['shier_shen_jixiong']
-    ji = '吉(黄道)' if zhi_xing in luck['吉'] else ('凶(黑道)' if zhi_xing in luck['凶'] else '')
+    # 建除值日的传统吉凶分类与黄道十二天神是两套并列系统，不在此混称黄道/黑道。
+    ji = '吉' if zhi_xing in luck['吉'] else ('凶' if zhi_xing in luck['凶'] else '')
     return ji, luck['口诀']
 
 

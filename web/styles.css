@@ -59,6 +59,14 @@ button { color: inherit; }
 }
 .brand-name { font-weight: 900; font-size: 21px; letter-spacing: .22em; line-height: 1; }
 .brand-name small { display: block; margin-top: 7px; color: var(--ink-soft); font-size: 9px; font-weight: 500; letter-spacing: .48em; }
+.header-actions { display: flex; align-items: center; gap: 34px; }
+.site-nav { display: flex; align-items: stretch; border-left: 1px solid var(--line); border-right: 1px solid var(--line); }
+.site-nav a { min-width: 76px; padding: 7px 16px 8px; color: var(--ink-soft); text-decoration: none; border-right: 1px solid var(--line); text-align: center; transition: color .2s, background .2s; }
+.site-nav a:last-child { border-right: 0; }
+.site-nav a:hover, .site-nav a.active { color: var(--cinnabar); background: rgba(169,54,40,.045); }
+.site-nav b, .site-nav small { display: block; }
+.site-nav b { font-size: 12px; letter-spacing: .15em; }
+.site-nav small { margin-top: 3px; font-size: 8px; letter-spacing: .22em; }
 .header-note { font-size: 12px; letter-spacing: .12em; color: var(--ink-soft); }
 .header-note i { display: inline-block; width: 7px; height: 7px; margin-right: 8px; background: var(--jade); border-radius: 50%; box-shadow: 0 0 0 4px rgba(29,92,85,.1); }
 
@@ -147,6 +155,10 @@ main { overflow: hidden; }
 .result-heading h2, .section-heading h2 { margin: 8px 0 0; font-size: 35px; line-height: 1.2; }
 .chart-meta { color: var(--ink-soft); font-size: 13px; line-height: 2; text-align: right; }
 .chart-meta strong { color: var(--ink); font-weight: 600; }
+.chart-nav { position: sticky; top: 12px; z-index: 12; margin: 0 0 18px; padding: 0 13px; display: flex; overflow-x: auto; background: rgba(248,242,231,.94); border-top: 1px solid var(--ink); border-bottom: 1px solid var(--line); box-shadow: 0 9px 24px rgba(60,45,23,.07); backdrop-filter: blur(9px); scrollbar-width: none; }
+.chart-nav::-webkit-scrollbar { display: none; }
+.chart-nav a { flex: 0 0 auto; padding: 13px 12px 12px; color: var(--ink-soft); text-decoration: none; font-size: 9px; letter-spacing: .08em; white-space: nowrap; transition: color .2s; }
+.chart-nav a:hover, .chart-nav a:focus { color: var(--cinnabar); }
 
 .chart-stage {
   position: relative;
@@ -263,7 +275,10 @@ footer p { margin: 0; font-family: "Ma Shan Zheng", cursive; font-size: 22px; le
 
 @media (max-width: 680px) {
   .site-header { height: 78px; padding: 0 20px; }
-  .header-note { width: 92px; line-height: 1.5; text-align: right; font-size: 9px; }
+  .header-actions { gap: 0; }
+  .site-nav a { min-width: 58px; padding: 6px 9px 7px; }
+  .site-nav small { display: none; }
+  .header-note { display: none; }
   .hero { padding: 38px 20px 72px; gap: 44px; }
   .hero h1 { font-size: 42px; }
   .hero-intro { font-size: 14px; }
@@ -272,6 +287,7 @@ footer p { margin: 0; font-family: "Ma Shan Zheng", cursive; font-size: 22px; le
   .birth-card { padding: 23px; }
   .field-row { grid-template-columns: 1fr; gap: 0; }
   .result-shell { padding: 54px 20px 80px; }
+  .chart-nav { margin-left: -20px; margin-right: -20px; padding-left: 15px; }
   .result-heading, .section-heading { align-items: start; flex-direction: column; }
   .chart-meta { text-align: left; }
   .chart-stage { grid-template-columns: repeat(4, minmax(130px, 1fr)); padding: 38px 12px 25px; overflow-x: auto; }

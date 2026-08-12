@@ -21,8 +21,10 @@ base.build_chart = enriched_build_chart
 
 class BaziV3RequestHandler(base.BaziV2RequestHandler):
     def do_GET(self):
-        if urlparse(self.path).path == "/":
-            source = os.path.join(base.WEB_ROOT, "index.html")
+        route = urlparse(self.path).path
+        page = {"/": "index.html", "/almanac": "almanac.html", "/almanac/": "almanac.html"}.get(route)
+        if page:
+            source = os.path.join(base.WEB_ROOT, page)
             with open(source, encoding="utf-8") as file:
                 html = file.read()
             body = html.encode("utf-8")

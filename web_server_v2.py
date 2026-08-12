@@ -13,6 +13,7 @@ from urllib.parse import parse_qs, urlparse
 from lunar_python import Lunar, LunarYear
 
 from bazi.engine import build_chart
+from bazi.web_schema import build_almanac, build_experimental_analysis
 
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -156,7 +157,19 @@ def build_chart_from_request(data):
             "真太阳时四柱": corrected_pillars,
             "变化柱": changed,
         }
+    chart["实验推演"] = build_experimental_analysis(chart)
     return chart
+
+
+def build_almanac_from_date(date_value):
+    """Validate a civil date and return its stable almanac schema."""
+    try:
+        selected = datetime.strptime(str(date_value), "%Y-%m-%d")
+    except ValueError as exc:
+        raise ValueError("黄历日期格式应为 YYYY-MM-DD") from exc
+    if not 1900 <= selected.year <= 2099:
+        raise ValueError("黄历日期应在 1900—2099 年之间")
+    return build_almanac(selected.year, selected.month, selected.day)
 
 
 class BaziV2RequestHandler(SimpleHTTPRequestHandler):
@@ -192,6 +205,13 @@ class BaziV2RequestHandler(SimpleHTTPRequestHandler):
                 if not 1900 <= year <= 2099:
                     raise ValueError("年份应在 1900—2099 之间")
                 self._send_json({"ok": True, **lunar_month_info(year)})
+            except (ValueError, TypeError) as exc:
+                self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.BAD_REQUEST)
+            return
+        if parsed.path == "/api/almanac":
+            try:
+                date_value = parse_qs(parsed.query).get("date", [""])[0]
+                self._send_json({"ok": True, "almanac": build_almanac_from_date(date_value)})
             except (ValueError, TypeError) as exc:
                 self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.BAD_REQUEST)
             return
