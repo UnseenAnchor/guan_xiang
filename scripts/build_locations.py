@@ -6,6 +6,9 @@ import json
 import sys
 
 
+csv.field_size_limit(sys.maxsize)
+
+
 def main(source, target):
     records = []
     with open(source, "r", encoding="utf-8-sig", newline="") as source_file:

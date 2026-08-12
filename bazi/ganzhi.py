@@ -6,7 +6,8 @@ ganzhi.py — 干支基础层
 import json, os
 
 _HERE = os.path.dirname(os.path.abspath(__file__))
-with open(os.path.join(_HERE, 'data_ny.json'), encoding='utf-8') as _file:
+_KNOWLEDGE = os.path.join(os.path.dirname(_HERE), 'knowledge')
+with open(os.path.join(_KNOWLEDGE, 'ny.json'), encoding='utf-8') as _file:
     D = json.load(_file)
 
 GAN = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸']      # 十天干

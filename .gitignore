@@ -1,4 +1,6 @@
 __pycache__/
 *.pyc
+# 本地 Agent 协作说明不上传 GitHub。
+/AGENTS.md
 # 逆向过程文档由 CYBZ_reverse 维护；此处可能存在只读本地镜像。
 docs/REVERSE-NOTES.md

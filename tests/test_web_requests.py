@@ -3,7 +3,7 @@ import datetime
 import json
 import unittest
 
-from web_server_v2 import build_almanac_from_date, build_chart_from_request
+from web_server import build_almanac_from_date, build_chart_from_request
 
 
 class WebRequestTests(unittest.TestCase):
