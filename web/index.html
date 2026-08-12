@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;500;600;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/styles.css?v=0.3.1">
+  <link rel="stylesheet" href="/styles.css?v=0.3.2">
 </head>
 <body>
   <div class="paper-noise" aria-hidden="true"></div>
@@ -43,16 +43,21 @@
         </fieldset>
 
         <div id="solar-panel" class="calendar-panel">
-          <label class="field field-wide"><span>公历日期</span><input id="birth-date" name="date" type="date" min="1900-01-01" max="2099-12-31" value="1990-05-15" required></label>
+          <div class="date-grid">
+            <label class="field date-year"><span>公历年份</span><input id="solar-year" type="number" inputmode="numeric" min="1900" max="2099" value="1990" required></label>
+            <label class="field"><span>月份</span><select id="solar-month" required></select></label>
+            <label class="field"><span>日期</span><select id="solar-day" required></select></label>
+          </div>
+          <p class="calendar-support solar-date-hint"><i aria-hidden="true"></i><span>年份可直接输入</span><small>支持 1900—2099 年</small></p>
         </div>
 
         <div id="lunar-panel" class="calendar-panel" hidden>
-          <div class="lunar-grid">
-            <label class="field lunar-year"><span>农历年份</span><input id="lunar-year" type="number" min="1900" max="2099" value="1990" disabled></label>
-            <label class="field"><span>月份</span><select id="lunar-month" disabled></select></label>
-            <label class="field"><span>日期</span><select id="lunar-day" disabled></select></label>
+          <div class="date-grid">
+            <label class="field date-year"><span>农历年份</span><input id="lunar-year" type="number" inputmode="numeric" min="1900" max="2099" value="1990" disabled required></label>
+            <label class="field"><span>月份</span><select id="lunar-month" disabled required></select></label>
+            <label class="field"><span>日期</span><select id="lunar-day" disabled required></select></label>
           </div>
-          <label class="leap-toggle disabled"><input id="lunar-leap" type="checkbox" disabled><span>闰月</span><small id="leap-note">该年无闰月</small></label>
+          <label class="calendar-support leap-toggle disabled"><input id="lunar-leap" type="checkbox" disabled><span>闰月</span><small id="leap-note">该年无闰月</small></label>
         </div>
 
         <div class="field-row">
@@ -80,14 +85,16 @@
           </div>
         </details>
 
-        <label class="true-solar-option">
-          <input id="use-true-solar-time" type="checkbox">
-          <span>
-            <b>使用真太阳时校正排盘</b>
-            <small>可选 · 不勾选时严格按出生记录中的标准时间排盘</small>
-          </span>
-        </label>
-        <p class="true-solar-note">不同命理流派采用的时间口径不同。启用后会按出生地经度与均时差校正，跨时辰或跨日期时可能改变时柱、日柱。</p>
+        <div class="true-solar-setting">
+          <label class="true-solar-option">
+            <input id="use-true-solar-time" type="checkbox">
+            <span>
+              <b>使用真太阳时校正排盘</b>
+              <small>可选 · 不勾选时严格按出生记录中的标准时间排盘</small>
+            </span>
+          </label>
+          <p class="true-solar-note">不同命理流派采用的时间口径不同。启用后会按出生地经度与均时差校正，跨时辰或跨日期时可能改变时柱、日柱。</p>
+        </div>
 
         <button class="submit-button" type="submit"><span>排定命盘</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
         <p class="form-status" id="form-status" role="status" aria-live="polite"></p>
@@ -126,6 +133,6 @@
   </main>
   <footer><span>观象 · BAZI ENGINE</span><p>历法有序，人生常新。</p></footer>
   <template id="loading-template"><div class="loading-oracle" aria-label="正在排盘"><i></i><span>推演中</span><i></i></div></template>
-  <script src="/app.js?v=0.3.1" defer></script>
+  <script src="/app.js?v=0.3.2" defer></script>
 </body>
 </html>

@@ -328,9 +328,21 @@ footer p { margin: 0; font-family: "Ma Shan Zheng", cursive; font-size: 22px; le
   background-size: 5px 5px, 5px 5px; background-repeat: no-repeat;
 }
 .birth-card-detailed select:focus { border-color: var(--cinnabar); box-shadow: 0 0 0 3px rgba(169,54,40,.08); }
-.lunar-grid { display: grid; grid-template-columns: 1.2fr .8fr .8fr; gap: 10px; }
-.lunar-grid .field { margin-bottom: 10px; }
-.leap-toggle { display: flex; align-items: center; gap: 8px; margin: -1px 0 17px; cursor: pointer; font-size: 11px; }
+.date-grid { display: grid; grid-template-columns: 1.2fr .8fr .8fr; gap: 10px; }
+.date-grid .field { margin-bottom: 10px; }
+.calendar-support {
+  height: 22px;
+  margin: -1px 0 17px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink-soft);
+  font-size: 10px;
+  line-height: 1;
+}
+.calendar-support small { margin-left: 2px; color: var(--ink-soft); font-size: 9px; }
+.solar-date-hint i { width: 6px; height: 6px; background: var(--jade); border-radius: 50%; opacity: .55; }
+.leap-toggle { cursor: pointer; }
 .leap-toggle input { accent-color: var(--cinnabar); }
 .leap-toggle span { font-weight: 700; }
 .leap-toggle small { color: var(--cinnabar); }
@@ -385,10 +397,17 @@ footer p { margin: 0; font-family: "Ma Shan Zheng", cursive; font-size: 22px; le
 
 @media (max-width: 680px) {
   .hero { min-height: auto; }
-  .lunar-grid { grid-template-columns: 1.2fr 1fr 1fr; gap: 6px; }
-  .lunar-grid input, .lunar-grid select { padding-left: 8px; padding-right: 22px; font-size: 12px; }
+  .date-grid { grid-template-columns: 1.2fr 1fr 1fr; gap: 6px; }
+  .date-grid input, .date-grid select { padding-left: 8px; padding-right: 22px; font-size: 12px; }
   .coordinate-grid { grid-template-columns: 1fr; gap: 0; }
   .place-results { top: 75px; }
+}
+
+.true-solar-setting {
+  margin-top: 4px;
+  padding: 14px 15px 13px;
+  border: 1px solid rgba(29, 92, 85, .22);
+  background: rgba(29, 92, 85, .045);
 }
 
 .true-solar-option {
@@ -396,10 +415,6 @@ footer p { margin: 0; font-family: "Ma Shan Zheng", cursive; font-size: 22px; le
   grid-template-columns: 20px 1fr;
   gap: 10px;
   align-items: start;
-  margin-top: 4px;
-  padding: 14px 15px;
-  border: 1px solid rgba(29, 92, 85, .22);
-  background: rgba(29, 92, 85, .045);
   cursor: pointer;
 }
 
@@ -430,7 +445,9 @@ footer p { margin: 0; font-family: "Ma Shan Zheng", cursive; font-size: 22px; le
 }
 
 .true-solar-note {
-  margin: -5px 2px 2px;
+  margin: 10px 0 0 30px;
+  padding-top: 9px;
+  border-top: 1px dashed rgba(29, 92, 85, .16);
   color: var(--ink-soft);
   font-size: 8px;
   line-height: 1.7;

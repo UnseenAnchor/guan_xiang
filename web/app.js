@@ -32,6 +32,7 @@ const cleanText = (value = '') => String(value).replaceAll('\r', '\n').replace(/
 init();
 
 async function init() {
+  fillSolarSelects();
   fillLunarSelects();
   syncCalendarMode();
   try {
@@ -41,6 +42,33 @@ async function init() {
   } catch (error) {
     locationStatus.innerHTML = `<i></i> ${escapeHTML(error.message)}，仍可手动填写经度`;
   }
+}
+
+function fillSolarSelects() {
+  document.querySelector('#solar-month').innerHTML = Array.from(
+    { length: 12 },
+    (_, index) => `<option value="${index + 1}"${index === 4 ? ' selected' : ''}>${index + 1}月</option>`,
+  ).join('');
+  updateSolarDays(15);
+}
+
+function updateSolarDays(defaultDay) {
+  const year = Number(document.querySelector('#solar-year').value);
+  const month = Number(document.querySelector('#solar-month').value);
+  if (year < 1900 || year > 2099 || month < 1 || month > 12) return;
+  const daySelect = document.querySelector('#solar-day');
+  const previous = Number(daySelect.value) || defaultDay || 1;
+  const days = new Date(year, month, 0).getDate();
+  daySelect.innerHTML = Array.from(
+    { length: days },
+    (_, index) => `<option value="${index + 1}">${index + 1}日</option>`,
+  ).join('');
+  daySelect.value = String(Math.min(previous, days));
+}
+
+function solarDateValue() {
+  const pad = (value) => String(value).padStart(2, '0');
+  return `${document.querySelector('#solar-year').value}-${pad(document.querySelector('#solar-month').value)}-${pad(document.querySelector('#solar-day').value)}`;
 }
 
 function fillLunarSelects() {
@@ -56,13 +84,17 @@ async function syncCalendarMode() {
   const lunarPanel = document.querySelector('#lunar-panel');
   solarPanel.hidden = lunarMode;
   lunarPanel.hidden = !lunarMode;
-  document.querySelector('#birth-date').disabled = lunarMode;
+  ['#solar-year', '#solar-month', '#solar-day'].forEach((selector) => {
+    document.querySelector(selector).disabled = lunarMode;
+  });
   ['#lunar-year', '#lunar-month', '#lunar-day'].forEach((selector) => {
     document.querySelector(selector).disabled = !lunarMode;
   });
   if (lunarMode) await updateLunarYear();
 }
 
+document.querySelector('#solar-year').addEventListener('input', () => updateSolarDays());
+document.querySelector('#solar-month').addEventListener('change', () => updateSolarDays());
 document.querySelector('#lunar-year').addEventListener('change', updateLunarYear);
 document.querySelector('#lunar-month').addEventListener('change', updateLeapState);
 document.querySelector('#lunar-leap').addEventListener('change', updateLunarDays);
@@ -221,7 +253,7 @@ form.addEventListener('submit', async (event) => {
   const calendar = form.elements.calendar.value;
   const payload = {
     calendar,
-    date: document.querySelector('#birth-date').value,
+    date: solarDateValue(),
     lunar_year: Number(document.querySelector('#lunar-year').value),
     lunar_month: Number(document.querySelector('#lunar-month').value),
     lunar_day: Number(document.querySelector('#lunar-day').value),
