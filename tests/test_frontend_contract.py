@@ -125,6 +125,8 @@ class FrontendContractTests(unittest.TestCase):
         self.assertIn("<dt>自坐长生</dt>", script)
         self.assertIn("chart['起运详情']", script)
         self.assertIn("交运时间", script)
+        self.assertNotIn("rule_id", script)
+        self.assertNotIn("confidence", script)
 
     def test_almanac_page_contains_every_script_render_target(self):
         html = (ROOT / "web" / "almanac.html").read_text(encoding="utf-8")

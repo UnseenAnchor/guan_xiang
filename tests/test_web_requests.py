@@ -123,6 +123,11 @@ class WebRequestTests(unittest.TestCase):
         self.assertTrue(all(item["evidence"] for item in model["strength"]["dimensions"]))
         self.assertIn("格局候选", model["pattern"]["wording"])
         self.assertIn("不代表唯一命理结论", model["notice"])
+        rules = model["evidence_registry"]["rules"]
+        self.assertEqual(len(rules), 3)
+        self.assertTrue(all({"rule_id", "source", "version", "school", "confidence"} <= set(rule)
+                            for rule in rules))
+        self.assertEqual(model["strength"]["dimensions"][0]["rule_ref"], rules[0]["rule_id"])
 
     def test_almanac_schema_is_complete_and_json_safe(self):
         almanac = build_almanac_from_date("2026-08-12")

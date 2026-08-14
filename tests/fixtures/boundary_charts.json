@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {"id":"lichun_before","date":"2024-02-04","time":"16:26","pillars":"癸卯乙丑戊戌庚申"},
+    {"id":"lichun_after","date":"2024-02-04","time":"16:28","pillars":"甲辰丙寅戊戌庚申"},
+    {"id":"jingzhe_before","date":"2024-03-05","time":"10:21","pillars":"甲辰丙寅戊辰丁巳"},
+    {"id":"jingzhe_after","date":"2024-03-05","time":"10:23","pillars":"甲辰丁卯戊辰丁巳"},
+    {"id":"late_zi_before","date":"2024-01-01","time":"22:59","pillars":"癸卯甲子甲子乙亥"},
+    {"id":"late_zi_after","date":"2024-01-01","time":"23:00","pillars":"癸卯甲子乙丑丙子"},
+    {"id":"true_solar_previous_day","date":"2024-01-02","time":"00:30","longitude":75,"pillars":"癸卯甲子甲子乙亥","corrected_date":"2024-01-01","corrected_time":"21:27"},
+    {"id":"true_solar_next_day","date":"2024-01-01","time":"23:30","longitude":180,"pillars":"癸卯甲子乙丑戊寅","corrected_date":"2024-01-02","corrected_time":"03:27"},
+    {"id":"true_solar_enters_late_zi","date":"2024-01-01","time":"20:00","longitude":180,"pillars":"癸卯甲子乙丑丙子","corrected_date":"2024-01-01","corrected_time":"23:57"},
+    {"id":"true_solar_stable","date":"2024-06-14","time":"12:00","longitude":120,"pillars":"甲辰庚午己酉庚午","corrected_date":"2024-06-14","corrected_time":"12:00"}
+  ]
+}

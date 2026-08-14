@@ -78,7 +78,9 @@ python main.py 1990 5 15 10 30 1 --lon 113.3
 ## 验证
 
 ```bash
+pip install -r requirements-dev.txt
 python -W error::ResourceWarning -m unittest discover -s tests -v
+python scripts/validate_oracle.py
 python scripts/validate_knowledge.py
 python scripts/validate_knowledge.py E:\AI-Coding\06-apk_reverse\CYBZ_reverse\bazi-engine
 python -m compileall -q bazi scripts web_server.py main.py
@@ -86,7 +88,9 @@ node --check web/app.js
 node --check web/almanac.js
 ```
 
-当前基线为 13 项引擎回归、10 项 Web 请求和 10 项前端/仓库契约测试，共 33 项。
+`lunar-python` 是固定版本的生产历法底座；`sxtwl` 只作为开发与 CI 的独立校验源，不进入运行时依赖。当前 Golden 基线包含 60 位 Astro-Databank Rodden A/AA 人物（240 个四柱字段）和 10 个节气、晚子时、真太阳时边界案例。
+
+当前自动化测试共 48 项，另有知识库校验、双引擎差分、Python 编译和前端 JavaScript 语法门禁。
 
 ## 目录
 
