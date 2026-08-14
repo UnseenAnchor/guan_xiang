@@ -7,9 +7,12 @@ import unittest
 
 from bazi.dayun_zhengyi import dayun_zhengyi, taisui_zhengyi
 from bazi.engine import build_chart
+from bazi.ganzhi import nayin
+from bazi.geju import judge_geju, strength_analysis
 from bazi.hehui import analyze
 from bazi.huangli import get_huangli
 from bazi.shensha import sanhe_star
+from bazi.solar_time import _equation_of_time
 
 
 class EngineRegressionTests(unittest.TestCase):
@@ -42,9 +45,65 @@ class EngineRegressionTests(unittest.TestCase):
     def test_true_solar_time_rebuilds_pillars_and_date(self):
         chart = build_chart(2024, 1, 2, 0, 30, sex=1, longitude=75)
         self.assertEqual(chart['真太阳时']['校正日期'], '2024-01-01')
-        self.assertEqual(chart['真太阳时']['校正后'], '21:24')
+        self.assertEqual(chart['真太阳时']['校正后'], '21:27')
         self.assertEqual(chart['四柱']['日']['干支'], '甲子')
         self.assertEqual(chart['四柱']['时']['干支'], '乙亥')
+
+    def test_equation_of_time_matches_noaa_seasonal_anchors(self):
+        expected = {
+            (2024, 1, 1): -2.90,
+            (2024, 2, 11): -14.20,
+            (2024, 4, 15): -0.05,
+            (2024, 6, 14): 0.07,
+            (2024, 11, 3): 16.36,
+        }
+        for date_parts, minutes in expected.items():
+            with self.subTest(date=date_parts):
+                self.assertAlmostEqual(_equation_of_time(*date_parts), minutes, delta=0.15)
+
+    def test_month_branch_must_match_lu_or_ren_to_name_special_pattern(self):
+        false_cases = [
+            ({'年': '癸酉', '月': '壬戌', '日': '己卯', '时': '乙丑'}, '己'),
+            ({'年': '辛丑', '月': '乙未', '日': '己巳', '时': '丙寅'}, '己'),
+            ({'年': '庚辰', '月': '庚辰', '日': '戊午', '时': '甲寅'}, '戊'),
+        ]
+        for pillars, rigan in false_cases:
+            with self.subTest(pillars=pillars):
+                pattern = judge_geju(pillars, rigan, strength_analysis(pillars, rigan))
+                self.assertNotIn(pattern[0], ('建禄格', '羊刃格'))
+
+        for month, expected in [('寅', '建禄格'), ('卯', '羊刃格')]:
+            pillars = {'年': '丙子', '月': '丙' + month, '日': '甲辰', '时': '庚午'}
+            pattern = judge_geju(pillars, '甲', strength_analysis(pillars, '甲'))
+            self.assertEqual(pattern[0], expected)
+
+    def test_branch_without_day_master_element_is_not_counted_as_root(self):
+        pillars = {'年': '癸酉', '月': '壬卯', '日': '己卯', '时': '乙酉'}
+        strength = strength_analysis(pillars, '己')
+        self.assertEqual(strength['得分项']['得地'], 0)
+        self.assertIn('无根', strength['细节'][1])
+
+    def test_start_luck_keeps_integer_and_exposes_full_precision(self):
+        chart = build_chart(1993, 10, 25, 1, 25, sex=1)
+        self.assertEqual(chart['起运'], 5)
+        self.assertEqual(chart['起运详情'], {
+            '年': 5, '月': 6, '日': 0, '时': 0,
+            '交运时间': '1999-04-25 01:25',
+            '算法': 'lunar-python sect=1',
+        })
+
+    def test_pillar_longsheng_fields_are_semantically_explicit(self):
+        chart = build_chart(1990, 5, 15, 10, 30, sex=1)
+        year = chart['四柱']['年']
+        self.assertEqual(year['长生'], year['自坐长生'])
+        self.assertEqual(year['日主地势'], '沐浴')
+        self.assertEqual(year['自坐长生'], '沐浴')
+
+    def test_nayin_uses_canonical_characters(self):
+        self.assertEqual(nayin('庚辰'), '白蜡金')
+        self.assertEqual(nayin('辛巳'), '白蜡金')
+        self.assertEqual(nayin('壬子'), '桑柘木')
+        self.assertEqual(nayin('癸丑'), '桑柘木')
 
     def test_no_longitude_keeps_civil_time(self):
         chart = build_chart(2024, 1, 2, 0, 30, sex=1)

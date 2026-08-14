@@ -4,38 +4,22 @@ solar_time.py — 真太阳时校正 (对齐 app TZhenTaiYangShi)
 标准公式: 真太阳时 = 平太阳时 + 经度时差 + 均时差
 """
 import math
-from datetime import datetime
+import calendar
+from datetime import date
 
 
 def _equation_of_time(y, m, d):
-    """均时差 (分钟)。基于天文近似公式, 精度 ±1 分钟, 对排盘足够"""
-    # 儒略日
-    if m <= 2:
-        y -= 1
-        m += 12
-    A = int(y / 100)
-    B = 2 - A + int(A / 4)
-    JD = int(365.25 * (y + 4716)) + int(30.6001 * (m + 1)) + d + B - 1524.5
-    n = JD - 2451545.0  # J2000 起天数
-    # 太阳平黄经
-    L = 280.460 + 0.9856474 * n
-    # 太阳平近点角
-    g = math.radians((357.528 + 0.9856003 * n) % 360)
-    # 黄经 (含主要摄动)
-    lam = math.radians((L + 1.915 * math.sin(g) + 0.020 * math.sin(2 * g)) % 360)
-    # 赤经
-    eps = math.radians(23.439 - 0.0000004 * n)
-    RA = math.degrees(math.atan2(math.cos(eps) * math.sin(lam), math.cos(lam)))
-    if RA < 0:
-        RA += 360
-    RA /= 15.0  # 转小时
-    # 平恒星时 (格林尼治)
-    GMST = (18.697374558 + 24.06570982441908 * (n - 0.5)) % 24
-    # 均时差 (小时): 平太阳时 - 真太阳时
-    eot = (GMST - RA) % 24
-    if eot > 12:
-        eot -= 24
-    return eot * 60.0  # 分钟
+    """均时差（分钟）。采用 NOAA/Spencer 日角近似公式。"""
+    day_of_year = date(y, m, d).timetuple().tm_yday
+    days = 366 if calendar.isleap(y) else 365
+    gamma = 2 * math.pi / days * (day_of_year - 1)
+    return 229.18 * (
+        0.000075
+        + 0.001868 * math.cos(gamma)
+        - 0.032077 * math.sin(gamma)
+        - 0.014615 * math.cos(2 * gamma)
+        - 0.040849 * math.sin(2 * gamma)
+    )
 
 
 def true_solar_time(y, m, d, hour, minute, longitude, tz_hour=8):

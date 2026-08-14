@@ -119,6 +119,13 @@ class FrontendContractTests(unittest.TestCase):
         self.assertIn("function buildChartText(chart)", script)
         self.assertIn("async function readJsonResponse(response)", script)
 
+    def test_chart_labels_longsheng_and_start_luck_precisely(self):
+        script = (ROOT / "web" / "app.js").read_text(encoding="utf-8")
+        self.assertIn("<dt>日主地势</dt>", script)
+        self.assertIn("<dt>自坐长生</dt>", script)
+        self.assertIn("chart['起运详情']", script)
+        self.assertIn("交运时间", script)
+
     def test_almanac_page_contains_every_script_render_target(self):
         html = (ROOT / "web" / "almanac.html").read_text(encoding="utf-8")
         script = (ROOT / "web" / "almanac.js").read_text(encoding="utf-8")

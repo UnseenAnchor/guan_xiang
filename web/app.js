@@ -408,7 +408,7 @@ function renderChart(chart) {
   renderSummary(chart);
   renderRelations(chart['刑冲合会'] || []);
   renderExperimental(chart['实验推演']);
-  renderCycles(chart['大运'] || [], chart['起运'], chart['运年断语'] || {});
+  renderCycles(chart['大运'] || [], chart['起运'], chart['起运详情'], chart['运年断语'] || {});
   renderAnnualLuck(chart['流年'] || [], chart['运年断语'] || {});
   renderSymbols(chart['神煞'] || []);
   renderKnowledge(chart['知识库']);
@@ -570,13 +570,13 @@ function buildChartMarkdown(chart) {
     `> ${chart['输入']['性别']} · ${chart['输入']['公历']} · 农历 ${cleanText(chart['农历'])}`,
     `> 排盘口径：${chart['排盘口径']?.['模式'] || '标准时间'}${chart['出生地'] ? ` · ${chart['出生地']['名称']}` : ''}`,
     '', '## 四柱总览', '',
-    '| 柱位 | 干支 | 天干十神 | 藏干（十神） | 纳音 | 空亡 | 长生 |',
-    '| --- | --- | --- | --- | --- | --- | --- |',
+    '| 柱位 | 干支 | 天干十神 | 藏干（十神） | 纳音 | 空亡 | 日主地势 | 自坐长生 |',
+    '| --- | --- | --- | --- | --- | --- | --- | --- |',
   ];
   pillars.forEach((name) => {
     const item = chart['四柱'][name];
     const hidden = (item['藏干'] || []).map((stem, index) => `${stem}（${(item['十神(藏干)'] || [])[index] || '—'}）`).join('、');
-    lines.push(`| ${name}柱 | ${markdownCell(item['干支'])} | ${markdownCell(item['十神(天干)'])} | ${markdownCell(hidden)} | ${markdownCell(item['纳音'])} | ${markdownCell((item['空亡'] || []).join('、'))} | ${markdownCell(item['长生'])} |`);
+    lines.push(`| ${name}柱 | ${markdownCell(item['干支'])} | ${markdownCell(item['十神(天干)'])} | ${markdownCell(hidden)} | ${markdownCell(item['纳音'])} | ${markdownCell((item['空亡'] || []).join('、'))} | ${markdownCell(item['日主地势'])} | ${markdownCell(item['自坐长生'] || item['长生'])} |`);
   });
   lines.push(
     '', '## 命盘摘要', '',
@@ -600,6 +600,8 @@ function buildChartMarkdown(chart) {
   }
 
   lines.push('', '## 大运', '', '| 序 | 干支 | 年龄 | 起年 | 终年 |', '| --- | --- | --- | --- | --- |');
+  const start = chart['起运详情'];
+  if (start) lines.push('', `> 起运：${start['年']}年${start['月']}个月${start['日']}天${start['时']}小时；交运时间：${start['交运时间'] || '—'}；${start['算法'] || ''}`, '');
   (chart['大运'] || []).filter((item) => item['干支']).forEach((item) => {
     lines.push(`| ${item['序']} | ${item['干支']} | ${item['年龄'] || '—'} | ${item['起年']} | ${item['终年']} |`);
   });
@@ -632,13 +634,15 @@ function buildChartText(chart) {
     const item = chart['四柱'][name];
     const hidden = (item['藏干'] || []).map((stem, index) => `${stem}(${(item['十神(藏干)'] || [])[index] || '—'})`).join('、');
     lines.push(`${name}柱  ${item['干支']}  天干十神：${item['十神(天干)']}  藏干：${hidden}`);
-    lines.push(`      纳音：${item['纳音']}  空亡：${(item['空亡'] || []).join('、')}  长生：${item['长生']}`);
+    lines.push(`      纳音：${item['纳音']}  空亡：${(item['空亡'] || []).join('、')}  日主地势：${item['日主地势']}  自坐长生：${item['自坐长生'] || item['长生']}`);
   });
   lines.push('', '【命盘摘要】', `日主：${chart['日主']}  生肖：${chart['生肖']}`, `胎元：${chart['胎元'] || '—'}  命宫：${chart['命宫'] || '—'}  身宫：${chart['身宫'] || '—'}`);
   lines.push('', '【刑冲合会】');
   (chart['刑冲合会'] || []).forEach(([kind, where, stems, note]) => lines.push(`- ${kind}｜${where}｜${stems}：${cleanText(note)}`));
   if (!(chart['刑冲合会'] || []).length) lines.push('- 未检出明显关系');
   lines.push('', '【大运】');
+  const start = chart['起运详情'];
+  if (start) lines.push(`起运：${start['年']}年${start['月']}个月${start['日']}天${start['时']}小时  交运：${start['交运时间'] || '—'}  ${start['算法'] || ''}`);
   (chart['大运'] || []).filter((item) => item['干支']).forEach((item) => lines.push(`${item['序']}. ${item['干支']}  ${item['年龄'] || '—'}岁  ${item['起年']}—${item['终年']}`));
   lines.push('', '【未来五年流年】', (chart['流年'] || []).map((item) => `${item['年']}：${item['干支']}`).join('  '));
   lines.push('', '【神煞】');
@@ -732,7 +736,8 @@ function renderPillars(chart) {
         <dl class="pillar-detail pillar-detail-complete">
           <div><dt>纳音</dt><dd>${escapeHTML(pillar['纳音'])}<small>${escapeHTML(pillar['纳音简'] || '')}</small></dd></div>
           <div><dt>空亡</dt><dd>${escapeHTML((pillar['空亡'] || []).join(' · '))}</dd></div>
-          <div><dt>长生</dt><dd>${escapeHTML(pillar['长生'])}</dd></div>
+          <div><dt>日主地势</dt><dd>${escapeHTML(pillar['日主地势'])}</dd></div>
+          <div><dt>自坐长生</dt><dd>${escapeHTML(pillar['自坐长生'] || pillar['长生'])}</dd></div>
         </dl>
       </article>`;
   }).join('');
@@ -761,11 +766,14 @@ function renderElements(chart) {
   requestAnimationFrame(() => container.querySelectorAll('.element-bar i').forEach((bar) => { bar.style.width = bar.dataset.width; }));
 }
 
-function renderCycles(cycles, startAge, analyses) {
+function renderCycles(cycles, startAge, startDetail, analyses) {
   const useful = cycles.filter((cycle) => cycle && cycle['干支']);
   const readings = new Map((analyses['大运'] || []).map((item) => [item['干支'], item['断语']]));
   const classicalReadings = new Map((analyses['三命通会'] || []).map((item) => [item['干支'], item['断语']]));
-  document.querySelector('#cycle-note').textContent = `起运 ${startAge ?? '—'} 岁 · 共 ${useful.length} 步有效大运，已全部展开`;
+  const startCopy = startDetail
+    ? `${startDetail['年']}年${startDetail['月']}个月${startDetail['日']}天${startDetail['时']}小时 · 交运 ${startDetail['交运时间'] || '—'}`
+    : `${startAge ?? '—'} 岁`;
+  document.querySelector('#cycle-note').textContent = `起运 ${startCopy} · 共 ${useful.length} 步有效大运，已全部展开`;
   const currentYear = new Date().getFullYear();
   const track = document.querySelector('#cycle-track');
   track.className = 'cycle-track dayun-complete';

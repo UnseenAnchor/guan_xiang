@@ -67,7 +67,7 @@ class WebRequestTests(unittest.TestCase):
             use_true_solar_time=True,
         ))
         self.assertEqual(chart["真太阳时"]["校正日期"], "2024-01-01")
-        self.assertEqual(chart["真太阳时"]["校正后"], "21:24")
+        self.assertEqual(chart["真太阳时"]["校正后"], "21:27")
         self.assertEqual(chart["四柱"]["日"]["干支"], "甲子")
         self.assertEqual(chart["四柱"]["时"]["干支"], "乙亥")
         self.assertEqual(chart["时间对比"]["变化柱"], ["日", "时"])

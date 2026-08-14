@@ -57,6 +57,12 @@ TIAOHOU = {
 MONTH_IDX = {'寅': 0, '卯': 1, '辰': 2, '巳': 3, '午': 4, '未': 5,
              '申': 6, '酉': 7, '戌': 8, '亥': 9, '子': 10, '丑': 11}
 
+# 十二长生口径下的临官（禄）与帝旺（刃）支。
+LU_BRANCH = {'甲': '寅', '乙': '卯', '丙': '巳', '丁': '午', '戊': '巳',
+             '己': '午', '庚': '申', '辛': '酉', '壬': '亥', '癸': '子'}
+REN_BRANCH = {'甲': '卯', '乙': '寅', '丙': '午', '丁': '巳', '戊': '午',
+              '己': '巳', '庚': '酉', '辛': '申', '壬': '子', '癸': '亥'}
+
 
 def strength_analysis(pillars, rigan):
     """
@@ -78,10 +84,12 @@ def strength_analysis(pillars, rigan):
     roots = []
     for name, z in (('年', yz), ('月', mz), ('日', dz), ('时', hz)):
         cs = CHANGSHENG_TABLE[rigan][z]
+        hidden_elements = zhi_canggan_wuxing(z)
+        if rg_wx not in hidden_elements:
+            continue
         w = CHANGSHENG_STRENGTH[cs]
         # 藏干主气与日主同五行 -> 本气根
-        cg_wx = zhi_canggan_wuxing(z)[0]
-        if cg_wx == rg_wx:
+        if hidden_elements[0] == rg_wx:
             w = max(w, 1.0)  # 本气根强
         if w > 0:
             root_score += w
@@ -155,10 +163,9 @@ def judge_geju(pillars, rigan, strength_info):
             return ('外格', '从格', f'日主弱极, 全局{max_wx}旺, 从{max_wx}')
 
     # 月令取格
-    if benqi_ss in ('比肩', '劫财'):
-        # 建禄/羊刃格
-        if benqi_ss == '比肩':
-            return ('建禄格', '建禄格', f'月支{mz}为日主之禄')
+    if mz == LU_BRANCH[rigan]:
+        return ('建禄格', '建禄格', f'月支{mz}为日主之禄')
+    if mz == REN_BRANCH[rigan]:
         return ('羊刃格', '羊刃格', f'月支{mz}为日主之刃')
     # 本气透干 -> 定格
     for g in (yg, mg, hg):
