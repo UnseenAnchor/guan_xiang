@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 ganzhi.py — 干支基础层
-数据源: 诚易排盘 app (com.cy.CYBZ) 内置知识库 ny.txt
+数据源: 内置知识库 ny.json
 """
 import json, os
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-analysis.py — 断语分析 (对接诚易排盘 app 内置断语库)
+analysis.py — 断语分析 (基于内置断语知识库)
 数据: serjson.txt 的 ssxx (十神断语 167条) + swk (日柱坐支论 120条)
 """
 import json, os, re

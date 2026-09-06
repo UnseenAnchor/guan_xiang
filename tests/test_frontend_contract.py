@@ -26,9 +26,9 @@ class FrontendContractTests(unittest.TestCase):
 
     def test_default_page_loads_canonical_assets_once(self):
         html = (ROOT / "web" / "index.html").read_text(encoding="utf-8")
-        self.assertEqual(html.count('href="/styles.css?v=0.5.0"'), 1)
-        self.assertEqual(html.count('src="/app.js?v=0.5.0"'), 1)
-        self.assertEqual(html.count('?v=0.5.0'), 2)
+        self.assertEqual(html.count('href="/styles.css?v=0.5.1"'), 1)
+        self.assertEqual(html.count('src="/app.js?v=0.5.1"'), 1)
+        self.assertEqual(html.count('?v=0.5.1'), 2)
 
     def test_solar_and_lunar_dates_share_the_same_three_part_structure(self):
         html = (ROOT / "web" / "index.html").read_text(encoding="utf-8")
@@ -130,7 +130,6 @@ class FrontendContractTests(unittest.TestCase):
             ROOT / "web" / "index_v2.html",
             ROOT / "scripts" / "build_locations_v2.py",
             ROOT / "scripts" / "build_locations_v3.py",
-            ROOT / "scripts" / "validate_cybz_knowledge.py",
             ROOT / "WEB-README.md", ROOT / "WEB-V2.md", ROOT / "WEB-V3.md",
             ROOT / "bazi" / "huangli.py", ROOT / "bazi" / "llm_explainer.py",
             ROOT / "web" / "almanac.html", ROOT / "web" / "almanac.js", ROOT / "web" / "almanac.css",

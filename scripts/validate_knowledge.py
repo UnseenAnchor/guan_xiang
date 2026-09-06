@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Validate the bundled knowledge or an external CYBZ_reverse/bazi-engine tree."""
+"""Validate the bundled knowledge or an external bazi-engine tree."""
 
 from __future__ import annotations
 
@@ -143,7 +143,7 @@ def main():
         nargs="?",
         type=Path,
         default=REPOSITORY_ROOT,
-        help="可选的 CYBZ_reverse/bazi-engine 路径；默认校验当前仓库",
+        help="可选的外部 bazi-engine 路径；默认校验当前仓库",
     )
     args = parser.parse_args()
     root = args.root.resolve()

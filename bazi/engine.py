@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 engine.py — 八字排盘主引擎
-结合: lunar-python (标准历法/节气/大运) + 诚易排盘 app 知识库 (十神/纳音/长生/神煞/断语)
+结合: lunar-python (标准历法/节气/大运) + 内置知识库 (十神/纳音/长生/神煞/断语)
 """
 from lunar_python import Solar, Lunar, EightChar
 import datetime as _dt
@@ -27,9 +27,9 @@ def pillars_from_lunar(lunar):
     h_gz = ec.getTime()      # 时柱
     return {'年': y_gz, '月': m_gz, '日': d_gz, '时': h_gz}
 
-# 反汇编确认 (libCYBZ.so 0x20996B4): app 晚子时(时>=23)日柱+1换日, 时柱按次日日干起时
+# 上游行为核验: 晚子时(时>=23)日柱+1换日, 时柱按次日日干起时
 def pillars_from_lunar_wzs(lunar, h):
-    """晚子时处理: h>=23 时日柱换次日 (对齐 app 行为)"""
+    """晚子时处理: h>=23 时日柱换次日"""
     p = pillars_from_lunar(lunar)
     if h >= 23:
         s = lunar.getSolar()

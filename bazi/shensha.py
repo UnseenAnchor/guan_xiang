@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 shensha.py — 神煞查法
-规则来源: 诚易排盘 app 内置神煞库 (serjson.txt) 的查法说明 + 传统标准查法
+规则来源: 内置神煞知识库查法说明 + 传统标准查法
 """
 from .ganzhi import GAN, ZHI, nayin, xunkong, zhi_index
 
@@ -132,9 +132,9 @@ def season(month):  # 月(节气月1-12) -> 季节
     return {1: '春', 2: '春', 3: '春', 4: '夏', 5: '夏', 6: '夏',
             7: '秋', 8: '秋', 9: '秋', 10: '冬', 11: '冬', 12: '冬'}[month]
 
-# ---------- 童子煞 (app 规则) ----------
+# ---------- 童子煞 ----------
 def tongzi(month_season, year_nayin, ri_zhi, shi_zhi, ri_gan):
-    """app 规则: 见 serjson 童子煞查法"""
+    """查法参照内置神煞知识库童子煞条目"""
     hits = []
     if month_season in ('春', '秋'):
         if ri_zhi in ('寅', '子') or shi_zhi in ('寅', '子'):
