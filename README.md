@@ -36,6 +36,8 @@ python web_server.py
 ## 验证
 
 ```bash
+# validate_oracle.py 需要 requirements-dev.txt 中的 sxtwl 作独立校验源
+pip install -r requirements-dev.txt
 python -W error::ResourceWarning -m unittest discover -s tests -v
 python scripts/validate_oracle.py
 python scripts/validate_knowledge.py
