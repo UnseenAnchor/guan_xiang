@@ -2,6 +2,8 @@
 import datetime
 import json
 import unittest
+import urllib.error
+import urllib.request
 
 from web_server import build_chart_from_request
 
@@ -149,8 +151,6 @@ class RetiredEndpointTests(unittest.TestCase):
         cls.server.server_close()
 
     def _expect_404(self, request):
-        import urllib.error
-        import urllib.request
         try:
             with urllib.request.urlopen(request) as response:
                 self.fail(f"expected 404, got {response.status}")
