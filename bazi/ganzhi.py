@@ -42,7 +42,8 @@ def jiazi_index_simple(gz):
 
 def nayin(gz):
     """纳音: e.g. 甲子 -> 海中金"""
-    return D['纳音'][gz]['wuxing']
+    value = D['纳音'][gz]['wuxing']
+    return {'白腊金': '白蜡金', '桑拓木': '桑柘木'}.get(value, value)
 
 def nayin_jian(gz):
     """纳音简五行"""

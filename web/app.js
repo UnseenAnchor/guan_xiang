@@ -15,7 +15,6 @@ let selectedPlace = null;
 let lunarYearInfo = null;
 let currentChart = null;
 let currentChartPayload = null;
-let currentExplanation = '';
 
 const GAN_ELEMENT = {
   甲: ['木', '阳'], 乙: ['木', '阴'], 丙: ['火', '阳'], 丁: ['火', '阴'],
@@ -319,7 +318,6 @@ form.addEventListener('submit', async (event) => {
     if (!response.ok || !data.ok) throw new Error(data.error || '暂时无法完成排盘');
     currentChart = data.chart;
     currentChartPayload = payload;
-    currentExplanation = '';
     renderChart(data.chart);
     resultShell.hidden = false;
     requestAnimationFrame(() => {
@@ -408,158 +406,12 @@ function renderChart(chart) {
   renderSummary(chart);
   renderRelations(chart['刑冲合会'] || []);
   renderExperimental(chart['实验推演']);
-  renderCycles(chart['大运'] || [], chart['起运'], chart['运年断语'] || {});
+  renderCycles(chart['大运'] || [], chart['起运'], chart['起运详情'], chart['运年断语'] || {});
   renderAnnualLuck(chart['流年'] || [], chart['运年断语'] || {});
   renderSymbols(chart['神煞'] || []);
   renderKnowledge(chart['知识库']);
   renderAnalysis(chart['分析'] || []);
-  resetExplanation();
 }
-
-function resetExplanation() {
-  const panel = document.querySelector('#ai-explanation');
-  const body = document.querySelector('#ai-explanation-body');
-  const status = document.querySelector('#ai-status');
-  panel.hidden = true;
-  panel.open = true;
-  body.innerHTML = '';
-  status.classList.remove('error');
-  status.textContent = '此功能会调用第三方模型 API，排盘与导出功能不受影响。';
-}
-
-function renderMarkdownInline(value) {
-  return escapeHTML(value)
-    .replace(/`([^`]+)`/g, '<code>$1</code>')
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/__(.+?)__/g, '<strong>$1</strong>')
-    .replace(/~~(.+?)~~/g, '<del>$1</del>')
-    .replace(/\*([^*]+)\*/g, '<em>$1</em>');
-}
-
-function markdownTableCells(line) {
-  return line.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map((cell) => cell.trim());
-}
-
-function renderSafeMarkdown(markdown) {
-  const lines = cleanText(markdown).split('\n');
-  const html = [];
-  let paragraph = [];
-  let listType = '';
-  let listItems = [];
-  let quoteLines = [];
-  let codeLines = [];
-  let inCode = false;
-
-  const flushParagraph = () => {
-    if (paragraph.length) html.push(`<p>${renderMarkdownInline(paragraph.join(' '))}</p>`);
-    paragraph = [];
-  };
-  const flushList = () => {
-    if (listItems.length) html.push(`<${listType}>${listItems.map((item) => `<li>${renderMarkdownInline(item)}</li>`).join('')}</${listType}>`);
-    listType = '';
-    listItems = [];
-  };
-  const flushQuote = () => {
-    if (quoteLines.length) html.push(`<blockquote>${quoteLines.map(renderMarkdownInline).join('<br>')}</blockquote>`);
-    quoteLines = [];
-  };
-  const flushBlocks = () => { flushParagraph(); flushList(); flushQuote(); };
-
-  for (let index = 0; index < lines.length; index += 1) {
-    const rawLine = lines[index];
-    const line = rawLine.trim();
-    if (/^```/.test(line)) {
-      flushBlocks();
-      if (inCode) {
-        html.push(`<pre><code>${escapeHTML(codeLines.join('\n'))}</code></pre>`);
-        codeLines = [];
-      }
-      inCode = !inCode;
-      continue;
-    }
-    if (inCode) { codeLines.push(rawLine); continue; }
-    if (!line) { flushBlocks(); continue; }
-
-    const heading = line.match(/^(#{1,4})\s+(.+)$/);
-    if (heading) {
-      flushBlocks();
-      const level = Math.min(heading[1].length + 2, 5);
-      html.push(`<h${level}>${renderMarkdownInline(heading[2])}</h${level}>`);
-      continue;
-    }
-    if (/^(---+|___+|\*\*\*+)$/.test(line)) { flushBlocks(); html.push('<hr>'); continue; }
-
-    const nextLine = lines[index + 1]?.trim() || '';
-    const tableSeparator = /^\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?$/;
-    if (line.includes('|') && tableSeparator.test(nextLine)) {
-      flushBlocks();
-      const headers = markdownTableCells(line);
-      const rows = [];
-      index += 2;
-      while (index < lines.length && lines[index].includes('|') && lines[index].trim()) {
-        rows.push(markdownTableCells(lines[index]));
-        index += 1;
-      }
-      index -= 1;
-      html.push(`<div class="markdown-table-wrap"><table><thead><tr>${headers.map((cell) => `<th>${renderMarkdownInline(cell)}</th>`).join('')}</tr></thead><tbody>${rows.map((row) => `<tr>${headers.map((_, cellIndex) => `<td>${renderMarkdownInline(row[cellIndex] || '')}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`);
-      continue;
-    }
-
-    const unordered = line.match(/^[-*+]\s+(.+)$/);
-    const ordered = line.match(/^\d+[.)]\s+(.+)$/);
-    if (unordered || ordered) {
-      flushParagraph();
-      flushQuote();
-      const nextType = unordered ? 'ul' : 'ol';
-      if (listType && listType !== nextType) flushList();
-      listType = nextType;
-      listItems.push((unordered || ordered)[1]);
-      continue;
-    }
-    if (/^>\s?/.test(line)) {
-      flushParagraph();
-      flushList();
-      quoteLines.push(line.replace(/^>\s?/, ''));
-      continue;
-    }
-    flushList();
-    flushQuote();
-    paragraph.push(line);
-  }
-  flushBlocks();
-  if (inCode && codeLines.length) html.push(`<pre><code>${escapeHTML(codeLines.join('\n'))}</code></pre>`);
-  return html.join('');
-}
-
-document.querySelector('#generate-explanation').addEventListener('click', async (event) => {
-  if (!currentChartPayload) return;
-  const button = event.currentTarget;
-  const status = document.querySelector('#ai-status');
-  const panel = document.querySelector('#ai-explanation');
-  const body = document.querySelector('#ai-explanation-body');
-  button.disabled = true;
-  button.textContent = '正在研读命盘…';
-  status.classList.remove('error');
-  status.textContent = '正在生成 AI 讲解，通常需要数秒至一分钟。';
-  try {
-    const response = await fetch('/api/chart-explanation', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(currentChartPayload),
-    });
-    const data = await readJsonResponse(response);
-    if (!response.ok || !data.ok) throw new Error(data.error || '暂时无法生成命盘讲解');
-    currentExplanation = data.explanation.content;
-    body.innerHTML = renderSafeMarkdown(currentExplanation);
-    panel.hidden = false;
-    panel.open = true;
-    status.textContent = `AI 讲解已生成 · ${data.explanation.notice}`;
-  } catch (error) {
-    status.classList.add('error');
-    status.textContent = error.message;
-  } finally {
-    button.disabled = false;
-    button.textContent = currentExplanation ? '重新生成讲解' : '生成命盘讲解';
-  }
-});
 
 const markdownCell = (value) => cleanText(value ?? '—').replaceAll('|', '\\|').replaceAll('\n', '<br>');
 
@@ -570,13 +422,13 @@ function buildChartMarkdown(chart) {
     `> ${chart['输入']['性别']} · ${chart['输入']['公历']} · 农历 ${cleanText(chart['农历'])}`,
     `> 排盘口径：${chart['排盘口径']?.['模式'] || '标准时间'}${chart['出生地'] ? ` · ${chart['出生地']['名称']}` : ''}`,
     '', '## 四柱总览', '',
-    '| 柱位 | 干支 | 天干十神 | 藏干（十神） | 纳音 | 空亡 | 长生 |',
-    '| --- | --- | --- | --- | --- | --- | --- |',
+    '| 柱位 | 干支 | 天干十神 | 藏干（十神） | 纳音 | 空亡 | 日主地势 | 自坐长生 |',
+    '| --- | --- | --- | --- | --- | --- | --- | --- |',
   ];
   pillars.forEach((name) => {
     const item = chart['四柱'][name];
     const hidden = (item['藏干'] || []).map((stem, index) => `${stem}（${(item['十神(藏干)'] || [])[index] || '—'}）`).join('、');
-    lines.push(`| ${name}柱 | ${markdownCell(item['干支'])} | ${markdownCell(item['十神(天干)'])} | ${markdownCell(hidden)} | ${markdownCell(item['纳音'])} | ${markdownCell((item['空亡'] || []).join('、'))} | ${markdownCell(item['长生'])} |`);
+    lines.push(`| ${name}柱 | ${markdownCell(item['干支'])} | ${markdownCell(item['十神(天干)'])} | ${markdownCell(hidden)} | ${markdownCell(item['纳音'])} | ${markdownCell((item['空亡'] || []).join('、'))} | ${markdownCell(item['日主地势'])} | ${markdownCell(item['自坐长生'] || item['长生'])} |`);
   });
   lines.push(
     '', '## 命盘摘要', '',
@@ -600,6 +452,8 @@ function buildChartMarkdown(chart) {
   }
 
   lines.push('', '## 大运', '', '| 序 | 干支 | 年龄 | 起年 | 终年 |', '| --- | --- | --- | --- | --- |');
+  const start = chart['起运详情'];
+  if (start) lines.push('', `> 起运：${start['年']}年${start['月']}个月${start['日']}天${start['时']}小时；交运时间：${start['交运时间'] || '—'}；${start['算法'] || ''}`, '');
   (chart['大运'] || []).filter((item) => item['干支']).forEach((item) => {
     lines.push(`| ${item['序']} | ${item['干支']} | ${item['年龄'] || '—'} | ${item['起年']} | ${item['终年']} |`);
   });
@@ -612,7 +466,6 @@ function buildChartMarkdown(chart) {
 
   lines.push('', '## 古籍与规则参照', '');
   (chart['分析'] || []).forEach(([title, body]) => lines.push(`### ${cleanText(title)}`, '', cleanText(body), ''));
-  if (currentExplanation) lines.push('## AI 命盘讲解', '', currentExplanation, '');
   lines.push('---', '', '本报告用于传统文化研究与娱乐体验，不构成医疗、法律、投资或人生决策建议。', '');
   return lines.join('\n');
 }
@@ -632,22 +485,21 @@ function buildChartText(chart) {
     const item = chart['四柱'][name];
     const hidden = (item['藏干'] || []).map((stem, index) => `${stem}(${(item['十神(藏干)'] || [])[index] || '—'})`).join('、');
     lines.push(`${name}柱  ${item['干支']}  天干十神：${item['十神(天干)']}  藏干：${hidden}`);
-    lines.push(`      纳音：${item['纳音']}  空亡：${(item['空亡'] || []).join('、')}  长生：${item['长生']}`);
+    lines.push(`      纳音：${item['纳音']}  空亡：${(item['空亡'] || []).join('、')}  日主地势：${item['日主地势']}  自坐长生：${item['自坐长生'] || item['长生']}`);
   });
   lines.push('', '【命盘摘要】', `日主：${chart['日主']}  生肖：${chart['生肖']}`, `胎元：${chart['胎元'] || '—'}  命宫：${chart['命宫'] || '—'}  身宫：${chart['身宫'] || '—'}`);
   lines.push('', '【刑冲合会】');
   (chart['刑冲合会'] || []).forEach(([kind, where, stems, note]) => lines.push(`- ${kind}｜${where}｜${stems}：${cleanText(note)}`));
   if (!(chart['刑冲合会'] || []).length) lines.push('- 未检出明显关系');
   lines.push('', '【大运】');
+  const start = chart['起运详情'];
+  if (start) lines.push(`起运：${start['年']}年${start['月']}个月${start['日']}天${start['时']}小时  交运：${start['交运时间'] || '—'}  ${start['算法'] || ''}`);
   (chart['大运'] || []).filter((item) => item['干支']).forEach((item) => lines.push(`${item['序']}. ${item['干支']}  ${item['年龄'] || '—'}岁  ${item['起年']}—${item['终年']}`));
   lines.push('', '【未来五年流年】', (chart['流年'] || []).map((item) => `${item['年']}：${item['干支']}`).join('  '));
   lines.push('', '【神煞】');
   (chart['神煞'] || []).forEach(([name, where, detail]) => lines.push(`- ${name}（${where}）${detail ? `：${cleanText(detail)}` : ''}`));
   lines.push('', '【古籍与规则参照】');
   (chart['分析'] || []).forEach(([title, body]) => lines.push('', `〔${cleanText(title)}〕`, cleanText(body)));
-  if (currentExplanation) {
-    lines.push('', '【AI 命盘讲解】', cleanText(currentExplanation).replace(/^#{1,4}\s+/gm, '').replace(/\*\*/g, ''));
-  }
   lines.push('', '------------------------------------------------------------', '仅供传统文化研究与娱乐体验，不构成医疗、法律、投资或人生决策建议。');
   return lines.join('\n');
 }
@@ -732,7 +584,8 @@ function renderPillars(chart) {
         <dl class="pillar-detail pillar-detail-complete">
           <div><dt>纳音</dt><dd>${escapeHTML(pillar['纳音'])}<small>${escapeHTML(pillar['纳音简'] || '')}</small></dd></div>
           <div><dt>空亡</dt><dd>${escapeHTML((pillar['空亡'] || []).join(' · '))}</dd></div>
-          <div><dt>长生</dt><dd>${escapeHTML(pillar['长生'])}</dd></div>
+          <div><dt>日主地势</dt><dd>${escapeHTML(pillar['日主地势'])}</dd></div>
+          <div><dt>自坐长生</dt><dd>${escapeHTML(pillar['自坐长生'] || pillar['长生'])}</dd></div>
         </dl>
       </article>`;
   }).join('');
@@ -761,11 +614,14 @@ function renderElements(chart) {
   requestAnimationFrame(() => container.querySelectorAll('.element-bar i').forEach((bar) => { bar.style.width = bar.dataset.width; }));
 }
 
-function renderCycles(cycles, startAge, analyses) {
+function renderCycles(cycles, startAge, startDetail, analyses) {
   const useful = cycles.filter((cycle) => cycle && cycle['干支']);
   const readings = new Map((analyses['大运'] || []).map((item) => [item['干支'], item['断语']]));
   const classicalReadings = new Map((analyses['三命通会'] || []).map((item) => [item['干支'], item['断语']]));
-  document.querySelector('#cycle-note').textContent = `起运 ${startAge ?? '—'} 岁 · 共 ${useful.length} 步有效大运，已全部展开`;
+  const startCopy = startDetail
+    ? `${startDetail['年']}年${startDetail['月']}个月${startDetail['日']}天${startDetail['时']}小时 · 交运 ${startDetail['交运时间'] || '—'}`
+    : `${startAge ?? '—'} 岁`;
+  document.querySelector('#cycle-note').textContent = `起运 ${startCopy} · 共 ${useful.length} 步有效大运，已全部展开`;
   const currentYear = new Date().getFullYear();
   const track = document.querySelector('#cycle-track');
   track.className = 'cycle-track dayun-complete';

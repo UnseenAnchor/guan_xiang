@@ -1,0 +1,24 @@
+name: validation
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.9"
+          cache: pip
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: python -m pip install -r requirements-dev.txt
+      - run: python -W error::ResourceWarning -m unittest discover -s tests -v
+      - run: python scripts/validate_oracle.py
+      - run: python scripts/validate_knowledge.py
+      - run: python -m compileall -q bazi scripts web_server.py main.py
+      - run: node --check web/app.js

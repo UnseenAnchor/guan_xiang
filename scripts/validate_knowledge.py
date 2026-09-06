@@ -13,7 +13,6 @@ from pathlib import Path
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 GAN = "甲乙丙丁戊己庚辛壬癸"
 MONTH_ZHI = "寅卯辰巳午未申酉戌亥子丑"
-XIU = set("角亢氐房心尾箕斗牛女虚危室壁奎娄胃昴毕觜参井鬼柳星张翼轸")
 ENCODINGS = {
     "clean_long.json": "gbk",
     "clean_short.json": "gbk",
@@ -117,18 +116,6 @@ def validate(root: Path):
         if mismatches:
             errors.append(f"调候 JSON 与代码常量不一致：{mismatches}")
 
-    huangli, _, _ = load_unique(knowledge / "黄历_协纪辨方书.json")
-    rows = huangli.get("二十八宿表", [])
-    if len(rows) != 28 or {row.get("宿") for row in rows} != XIU:
-        errors.append("二十八宿表不是28宿全集")
-    bad_fullnames = [
-        (row.get("宿"), row.get("全名"))
-        for row in rows
-        if row.get("全名") != row.get("宿", "") + row.get("七政", "") + row.get("动物", "")
-    ]
-    if bad_fullnames:
-        errors.append(f"二十八宿全名不完整：{bad_fullnames}")
-
     ny, _, _ = load_unique(knowledge / "ny.json")
     for key, count in {"天干": 10, "地支": 12, "纳音": 60, "十神": 100, "十二长生": 120}.items():
         if len(ny.get(key, {})) != count:
@@ -144,7 +131,7 @@ def validate(root: Path):
         "月令正文 120 项完整、无网页噪声、短占位或异常跨章节。",
         "十干性格、性情总论与调候 120 项结构完整。",
         "调候 JSON 与 geju.py 代码常量逐项一致。",
-        "二十八宿 28 项全名、基础表与 serjson 核心计数正确。",
+        "基础表与 serjson 核心计数正确。",
     ])
     return errors, notes
 

@@ -45,6 +45,7 @@ def pillars_from_lunar_wzs(lunar, h):
 def build_pillar_detail(gz, rigan=None):
     """单柱详情: 干支/五行/阴阳/藏干/十神/纳音/空亡/长生"""
     g, z = gz[0], gz[1]
+    self_stage = shier_changsheng(g, z)
     d = {
         '干支': gz,
         '天干': g, '干五行': gan_wuxing(g), '干阴阳': gan_yinyang(g),
@@ -52,11 +53,13 @@ def build_pillar_detail(gz, rigan=None):
         '藏干': zhi_canggan(z), '藏干五行': zhi_canggan_wuxing(z),
         '纳音': nayin(gz), '纳音简': nayin_jian(gz),
         '空亡': xunkong(gz),
-        '长生': shier_changsheng(g, z),
+        '长生': self_stage,
+        '自坐长生': self_stage,
     }
     if rigan:
         d['十神(天干)'] = shishen(rigan, g)
         d['十神(藏干)'] = [shishen(rigan, cg) for cg in d['藏干']]
+        d['日主地势'] = shier_changsheng(rigan, z)
     return d
 
 def build_chart(y, m, d, h, mi=0, s=0, sex=1, **kwargs):
@@ -124,6 +127,15 @@ def build_chart(y, m, d, h, mi=0, s=0, sex=1, **kwargs):
     try:
         yun = ec.getYun(1 if sex else 0)
         result['起运'] = yun.getStartYear() if hasattr(yun, 'getStartYear') else None
+        start_solar = yun.getStartSolar() if hasattr(yun, 'getStartSolar') else None
+        result['起运详情'] = {
+            '年': yun.getStartYear() if hasattr(yun, 'getStartYear') else None,
+            '月': yun.getStartMonth() if hasattr(yun, 'getStartMonth') else None,
+            '日': yun.getStartDay() if hasattr(yun, 'getStartDay') else None,
+            '时': yun.getStartHour() if hasattr(yun, 'getStartHour') else None,
+            '交运时间': start_solar.toYmdHms()[:16] if start_solar else None,
+            '算法': 'lunar-python sect=1',
+        }
         result['大运'] = []
         for dy in yun.getDaYun():
             result['大运'].append({
@@ -214,7 +226,8 @@ def render_text(chart):
     L.append('        年柱      月柱      日柱      时柱')
     gz_line = '    ' + ''.join(f'{chart["四柱"][p]["干支"]:^9s}' for p in ('年', '月', '日', '时'))
     L.append(gz_line)
-    for attr, label in (('藏干', '藏干'), ('十神(天干)', '十神'), ('纳音', '纳音'), ('空亡', '空亡'), ('长生', '长生')):
+    for attr, label in (('藏干', '藏干'), ('十神(天干)', '十神'), ('纳音', '纳音'), ('空亡', '空亡'),
+                        ('日主地势', '地势'), ('自坐长生', '自坐')):
         vals = []
         for p in ('年', '月', '日', '时'):
             v = chart['四柱'][p][attr]
@@ -235,8 +248,10 @@ def render_text(chart):
         L.append(f"用神: {'/'.join(y['用神'])}  忌神: {'/'.join(y['忌神']) if y['忌神'] else '—'}  调候: {''.join(y['调候干'])}  ({y['方法']})")
         if y.get('病') or y.get('通关'):
             L.append(f"病药: 病={y.get('病') or '—'} 药={y.get('药') or '—'}  通关: {y.get('通关') or '—'}")
-    if chart.get('起运'):
-        L.append(f"起运: {chart['起运']}岁")
+    if chart.get('起运') is not None:
+        start = chart.get('起运详情') or {}
+        precision = f"{start.get('年', 0)}年{start.get('月', 0)}个月{start.get('日', 0)}天{start.get('时', 0)}小时"
+        L.append(f"起运: {precision}  交运: {start.get('交运时间') or '—'}")
     L.append('大运: ' + ' '.join(f"{d['干支']}({d['起年']})" for d in chart['大运'][1:10] if d.get('干支')))
     L.append('流年: ' + ' '.join(f"{d['年']}:{d['干支']}" for d in chart['流年']))
     L.append('-' * 42)
