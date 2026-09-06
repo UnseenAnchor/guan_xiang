@@ -9,15 +9,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@400;500;600;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/styles.css?v=0.4.2">
+  <link rel="stylesheet" href="/styles.css?v=0.5.0">
 </head>
 <body>
   <div class="paper-noise" aria-hidden="true"></div>
   <header class="site-header">
     <a class="brand" href="#top" aria-label="观象首页"><span class="brand-seal">象</span><span class="brand-name">观象<small>八字排盘</small></span></a>
     <div class="header-actions">
-      <nav class="site-nav" aria-label="主要功能"><a class="active" href="/" aria-current="page"><b>命盘</b><small>观人</small></a><a href="/almanac"><b>黄历</b><small>观时</small></a></nav>
-      <div class="header-note"><i></i> 本地排盘 · AI 按需联网</div>
+      <nav class="site-nav" aria-label="主要功能"><a class="active" href="/" aria-current="page"><b>命盘</b><small>观人</small></a></nav>
+      <div class="header-note"><i></i> 本地排盘 · 本机导出</div>
     </div>
   </header>
 
@@ -118,7 +118,6 @@
         <div class="chart-nav-group chart-nav-research">
           <p>参研内容</p>
           <a href="#section-experimental"><i>研</i><span>规则推演</span><small>实验</small></a>
-          <a href="#section-ai"><i>解</i><span>AI 讲解</span><small>联网</small></a>
         </div>
       </nav>
       <div class="result-content">
@@ -143,32 +142,21 @@
         <div class="content-section analysis-section" id="section-references"><div class="section-heading compact"><div><p class="section-kicker">古籍断语 / NOTES</p><h2>命理札记</h2></div></div><div class="analysis-list" id="analysis-list"></div></div>
       </section>
       <section class="research-zone reveal" aria-labelledby="research-title">
-        <div class="research-heading"><div><p class="section-kicker">参研附卷 / RESEARCH</p><h2 id="research-title">推演与智能释读</h2></div><p>以下内容带有规则假设或生成性质，与上方排盘事实分开展示，宜作参考而非定论。</p></div>
+        <div class="research-heading"><div><p class="section-kicker">参研附卷 / RESEARCH</p><h2 id="research-title">规则推演</h2></div><p>以下内容带有规则假设，与上方排盘事实分开展示，宜作参考而非定论。</p></div>
         <section class="experimental-section" id="section-experimental">
           <details class="experimental-panel">
             <summary><span><i>推</i><b>旺衰与取用推演</b><small>本部分基于综合规则分析，不同命理流派可能存在不同结论。</small></span><em id="experimental-summary">展开查看推导依据</em></summary>
             <div id="experimental-root" class="experimental-root"></div>
           </details>
         </section>
-        <section class="ai-section" id="section-ai">
-          <div class="section-heading"><div><p class="section-kicker">智能释读 / AI ANALYSIS</p><h2>命盘讲解 Agent</h2></div><p>仅在你主动点击后，将性别、四柱、大运、流年等排盘结果发送至第三方 AI 服务；出生日期、出生地和坐标不会发送。</p></div>
-          <div class="ai-agent-card">
-            <div class="ai-agent-intro"><span class="agent-seal">解</span><div><b>从命盘骨架到阶段观察</b><p>区分排盘事实、古籍参照与实验推演，不重新计算四柱。</p></div><button type="button" id="generate-explanation">生成命盘讲解</button></div>
-            <p class="ai-status" id="ai-status" role="status" aria-live="polite">此功能会调用第三方模型 API，排盘与导出功能不受影响。</p>
-            <details class="ai-explanation" id="ai-explanation" hidden open>
-              <summary><span>AI 命盘讲解</span></summary>
-              <article class="ai-explanation-body" id="ai-explanation-body"></article>
-            </details>
-          </div>
-        </section>
       </section>
-      <p class="disclaimer reveal">本页内容源自传统命理知识库，仅供文化研究与娱乐体验，不构成医疗、法律、投资或人生决策建议。排盘、地点搜索与文档导出均在本机完成；只有用户主动生成 AI 讲解时，裁剪后的命盘结构才会发送至第三方 AI 服务。</p>
+      <p class="disclaimer reveal">本页内容源自传统命理知识库，仅供文化研究与娱乐体验，不构成医疗、法律、投资或人生决策建议。排盘、地点搜索与文档导出均在本机完成。</p>
       </div>
       </div>
     </section>
   </main>
   <footer><span>观象 · BAZI ENGINE</span><p>历法有序，人生常新。</p></footer>
   <template id="loading-template"><div class="loading-oracle" aria-label="正在排盘"><i></i><span>推演中</span><i></i></div></template>
-  <script src="/app.js?v=0.4.2" defer></script>
+  <script src="/app.js?v=0.5.0" defer></script>
 </body>
 </html>

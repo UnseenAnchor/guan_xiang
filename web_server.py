@@ -14,8 +14,7 @@ from lunar_python import Lunar, LunarYear
 
 from bazi.engine import build_chart as core_build_chart
 from bazi.knowledge_loader import enrich_chart, load_knowledge
-from bazi.llm_explainer import ExplanationError, explain_chart
-from bazi.web_schema import build_almanac, build_experimental_analysis
+from bazi.web_schema import build_experimental_analysis
 
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -168,17 +167,6 @@ def build_chart_from_request(data):
     return chart
 
 
-def build_almanac_from_date(date_value):
-    """Validate a civil date and return its stable almanac schema."""
-    try:
-        selected = datetime.strptime(str(date_value), "%Y-%m-%d")
-    except ValueError as exc:
-        raise ValueError("黄历日期格式应为 YYYY-MM-DD") from exc
-    if not 1900 <= selected.year <= 2099:
-        raise ValueError("黄历日期应在 1900—2099 年之间")
-    return build_almanac(selected.year, selected.month, selected.day)
-
-
 class BaziRequestHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=WEB_ROOT, **kwargs)
@@ -226,14 +214,7 @@ class BaziRequestHandler(SimpleHTTPRequestHandler):
             except (ValueError, TypeError) as exc:
                 self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.BAD_REQUEST)
             return
-        if parsed.path == "/api/almanac":
-            try:
-                date_value = parse_qs(parsed.query).get("date", [""])[0]
-                self._send_json({"ok": True, "almanac": build_almanac_from_date(date_value)})
-            except (ValueError, TypeError) as exc:
-                self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.BAD_REQUEST)
-            return
-        page = {"/": "index.html", "/almanac": "almanac.html", "/almanac/": "almanac.html"}.get(parsed.path)
+        page = {"/": "index.html"}.get(parsed.path)
         if page:
             self._send_page(page)
             return
@@ -244,7 +225,7 @@ class BaziRequestHandler(SimpleHTTPRequestHandler):
 
     def do_POST(self):
         path = urlparse(self.path).path
-        if path not in ("/api/chart", "/api/chart-explanation"):
+        if path != "/api/chart":
             if path.startswith("/api/"):
                 self._send_json({"ok": False, "error": "接口不存在"}, HTTPStatus.NOT_FOUND)
             else:
@@ -256,14 +237,9 @@ class BaziRequestHandler(SimpleHTTPRequestHandler):
                 raise ValueError("请求内容为空或过大")
             data = json.loads(self.rfile.read(length).decode("utf-8"))
             chart = build_chart_from_request(data)
-            if path == "/api/chart":
-                self._send_json({"ok": True, "chart": chart})
-            else:
-                self._send_json({"ok": True, "explanation": explain_chart(chart)})
+            self._send_json({"ok": True, "chart": chart})
         except (ValueError, TypeError, json.JSONDecodeError) as exc:
             self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.BAD_REQUEST)
-        except ExplanationError as exc:
-            self._send_json({"ok": False, "error": str(exc)}, HTTPStatus.BAD_GATEWAY)
         except Exception as exc:
             print(f"[bazi-web] chart error: {exc!r}")
             self._send_json(

@@ -1,9 +1,0 @@
-{
-  "deepseek": {
-    "api_key": "请填写新申请的 DeepSeek API Key",
-    "base_url": "https://api.deepseek.com",
-    "model": "deepseek-chat",
-    "timeout": 60,
-    "max_tokens": 2400
-  }
-}

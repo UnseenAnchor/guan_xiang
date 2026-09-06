@@ -10,7 +10,6 @@ from bazi.engine import build_chart
 from bazi.ganzhi import nayin
 from bazi.geju import judge_geju, strength_analysis
 from bazi.hehui import analyze
-from bazi.huangli import get_huangli
 from bazi.shensha import sanhe_star
 from bazi.solar_time import _equation_of_time
 
@@ -137,10 +136,6 @@ class EngineRegressionTests(unittest.TestCase):
         chart = build_chart(1990, 5, 15, 10, 30, sex=1)
         expected = len([item for item in chart['大运'][1:] if item.get('干支')])
         self.assertEqual(len(chart['运年断语']['三命通会']), expected)
-
-    def test_huangli_returns_complete_xiu_name(self):
-        info = get_huangli(2024, 2, 10)
-        self.assertEqual(info['星宿全名'], info['星宿'] + info['七政'] + info['动物'])
 
     def test_yueling_corpus_is_complete_and_clean(self):
         path = pathlib.Path(__file__).parents[1] / 'knowledge' / '月令断语_穷通宝鉴_byAppTitle.json'

@@ -22,4 +22,3 @@ jobs:
       - run: python scripts/validate_knowledge.py
       - run: python -m compileall -q bazi scripts web_server.py main.py
       - run: node --check web/app.js
-      - run: node --check web/almanac.js

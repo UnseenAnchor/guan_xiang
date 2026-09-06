@@ -3,7 +3,7 @@ import datetime
 import json
 import unittest
 
-from web_server import build_almanac_from_date, build_chart_from_request
+from web_server import build_chart_from_request
 
 
 class WebRequestTests(unittest.TestCase):
@@ -129,25 +129,45 @@ class WebRequestTests(unittest.TestCase):
                             for rule in rules))
         self.assertEqual(model["strength"]["dimensions"][0]["rule_ref"], rules[0]["rule_id"])
 
-    def test_almanac_schema_is_complete_and_json_safe(self):
-        almanac = build_almanac_from_date("2026-08-12")
-        self.assertEqual(almanac["date"]["solar"], "2026-08-12")
-        self.assertEqual(almanac["date"]["weekday"], "星期三")
-        self.assertEqual(almanac["day_officer"]["name"], "开")
-        self.assertEqual(almanac["day_officer"]["classification"], "吉")
-        self.assertEqual(almanac["ecliptic"]["type"], "黑道")
-        self.assertEqual(almanac["lodge"]["full_name"], "参水猿")
-        self.assertEqual(almanac["nine_stars"]["day"]["number"], "九")
-        self.assertTrue(almanac["activities"]["recommended"])
-        self.assertTrue(almanac["activities"]["avoided"])
-        self.assertEqual(len(almanac["directions"]), 5)
-        json.dumps(almanac, ensure_ascii=False)
 
-    def test_almanac_rejects_invalid_or_unsupported_dates(self):
-        with self.assertRaisesRegex(ValueError, "YYYY-MM-DD"):
-            build_almanac_from_date("2026/08/12")
-        with self.assertRaisesRegex(ValueError, "1900—2099"):
-            build_almanac_from_date("2100-01-01")
+class RetiredEndpointTests(unittest.TestCase):
+    """Removed almanac / AI-explanation surfaces must stay gone at the HTTP layer."""
+
+    @classmethod
+    def setUpClass(cls):
+        from http.server import ThreadingHTTPServer
+        import threading
+        from web_server import BaziRequestHandler
+
+        cls.server = ThreadingHTTPServer(("127.0.0.1", 0), BaziRequestHandler)
+        threading.Thread(target=cls.server.serve_forever, daemon=True).start()
+        cls.base = f"http://127.0.0.1:{cls.server.server_address[1]}"
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.server.shutdown()
+        cls.server.server_close()
+
+    def _expect_404(self, request):
+        import urllib.error
+        import urllib.request
+        try:
+            with urllib.request.urlopen(request) as response:
+                self.fail(f"expected 404, got {response.status}")
+        except urllib.error.HTTPError as exc:
+            self.assertEqual(exc.code, 404)
+
+    def test_retired_api_routes_return_404(self):
+        self._expect_404(f"{self.base}/api/almanac?date=2026-08-12")
+        request = urllib.request.Request(
+            f"{self.base}/api/chart-explanation",
+            data=b"{}", headers={"Content-Type": "application/json"},
+        )
+        self._expect_404(request)
+
+    def test_retired_almanac_pages_and_assets_are_gone(self):
+        for path in ("/almanac", "/almanac.js", "/almanac.css"):
+            self._expect_404(f"{self.base}{path}")
 
 
 if __name__ == "__main__":
