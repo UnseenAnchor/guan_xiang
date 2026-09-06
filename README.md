@@ -6,8 +6,6 @@
 
 ![命盘结果](docs/screenshot-chart.png)
 
-<p align="center"><img src="docs/screenshot-mobile.png" alt="手机端命盘" width="300"></p>
-
 ## 启动
 
 ```bash
