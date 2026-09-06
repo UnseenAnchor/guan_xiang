@@ -201,7 +201,7 @@ class BaziRequestHandler(SimpleHTTPRequestHandler):
                 "ok": True,
                 "app": "guan-xiang",
                 "version": app_version(),
-                "engine": "CYBZ_reverse/bazi-engine",
+                "engine": "bazi-engine",
                 "schema_version": 1,
             })
             return

@@ -1,8 +1,8 @@
 # 观象 · 八字排盘
 
-观象是一个本地优先的四柱排盘与传统命理知识展示网页。历法计算基于 `lunar-python`，排盘规则和知识数据同步自 `CYBZ_reverse` 的已验证版本。
+观象是一个本地优先的四柱排盘与传统命理知识展示网页。历法计算基于 `lunar-python`，排盘规则和知识数据来自已验证的上游版本。
 
-当前版本：`0.5.0`
+当前版本：`0.5.1`
 
 ## 启动
 
@@ -55,7 +55,7 @@ python main.py 1990 5 15 10 30 1 --lon 113.3
 ## 数据来源分层
 
 - `历法计算`：由 `lunar-python` 与本地基础表生成。
-- `逆向确认`：来自 `CYBZ_reverse` 对目标 App 行为和数据结构的验证。
+- `逆向确认`：来自对上游排盘应用行为和数据结构的验证。
 - `古籍参照`：《穷通宝鉴》《滴天髓》《三命通会》等资料。
 - `实验模型`：旺衰、格局、喜忌、用神、病药和通关等程序化推断。
 
@@ -68,14 +68,23 @@ pip install -r requirements-dev.txt
 python -W error::ResourceWarning -m unittest discover -s tests -v
 python scripts/validate_oracle.py
 python scripts/validate_knowledge.py
-python scripts/validate_knowledge.py E:\AI-Coding\06-apk_reverse\CYBZ_reverse\bazi-engine
 python -m compileall -q bazi scripts web_server.py main.py
 node --check web/app.js
 ```
 
 `lunar-python` 是固定版本的生产历法底座；`sxtwl` 只作为开发与 CI 的独立校验源，不进入运行时依赖。当前 Golden 基线包含 60 位 Astro-Databank Rodden A/AA 人物（240 个四柱字段）和 10 个节气、晚子时、真太阳时边界案例。
 
-当前自动化测试共 43 项，另有知识库校验、双引擎差分、Python 编译和前端 JavaScript 语法门禁。
+当前自动化测试共 46 项，另有知识库校验、双引擎差分、Python 编译和前端 JavaScript 语法门禁。
+
+可选的前端浏览器回归检查（开发机需已有 Python Playwright 和 Chrome，不属于运行时依赖或默认 unittest）：
+
+```bash
+python scripts/check_ui_layout.py
+# 使用其他已安装的 Chromium 系浏览器：
+python scripts/check_ui_layout.py --browser "浏览器可执行文件的完整路径"
+```
+
+检查覆盖桌面、平板及两种手机宽度下的目录布局、四柱键盘滚动、五行计数文案与本地导出；默认阻止外部字体请求，以验证本机回退字体。可加 `--online-fonts` 允许页面加载在线字体，或加 `--screenshots <目录>` 保存截图与检查结果。
 
 ## 目录
 
@@ -87,7 +96,7 @@ tests/      引擎、Web 请求和前端契约测试
 web/        命盘与离线地点资源
 ```
 
-`web_server.py`、`web/app.js`、`web/styles.css` 分别是唯一正式服务端、命盘脚本和共享样式入口。版本历史只记录在 `CHANGELOG.md`。
+`web_server.py`、`web/app.js`、`web/styles.css` 分别是唯一正式服务端、命盘脚本和共享样式入口。界面设计约定见 `DESIGN.md`；修改 UI 时保留现有视觉语言和数据分层。版本历史只记录在 `CHANGELOG.md`。
 
 ## 已知边界
 
