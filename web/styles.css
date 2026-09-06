@@ -173,6 +173,7 @@ main { overflow-x: clip; }
 .chart-nav a small { color: var(--ink-soft); font-size: 10px; }
 .chart-nav a:hover, .chart-nav a:focus, .chart-nav a.active { color: var(--cinnabar); background: rgba(169,54,40,.055); border-left-color: var(--cinnabar); outline: none; }
 .chart-nav a:hover i, .chart-nav a:focus i, .chart-nav a.active i { color: var(--cinnabar); border-color: rgba(169,54,40,.38); }
+.chart-nav a:focus-visible { outline: 2px solid var(--cinnabar); outline-offset: -2px; }
 .chart-nav-research a { color: var(--jade); }
 #section-overview, #section-elements, #section-relations, #section-cycles, #annual-section, #section-symbols, #section-references, #section-experimental, #section-ai { scroll-margin-top: 24px; }
 
@@ -186,6 +187,8 @@ main { overflow-x: clip; }
   box-shadow: 0 30px 70px rgba(30, 30, 24, .2);
   overflow: hidden;
 }
+.chart-stage:focus-visible { outline: 2px solid var(--paper-light); outline-offset: -4px; }
+.chart-scroll-hint { display: none; margin: 0 0 10px; color: var(--ink-soft); font-size: 12px; line-height: 1.7; }
 .chart-stage::before { content: "四柱"; position: absolute; right: -9px; bottom: -48px; color: rgba(255,255,255,.025); font-family: "Ma Shan Zheng", cursive; font-size: 220px; pointer-events: none; }
 .pillar { position: relative; min-height: 410px; padding: 0 20px 21px; color: #eee6d7; border-right: 1px solid rgba(255,255,255,.12); text-align: center; }
 .pillar:last-child { border-right: 0; }
@@ -286,6 +289,8 @@ footer p { margin: 0; font-family: "Ma Shan Zheng", cursive; font-size: 22px; le
   .hero-copy { max-width: 720px; }
   .birth-card { max-width: 620px; }
   .result-content { max-width: none; }
+  .chart-stage { grid-template-columns: repeat(4, minmax(130px, 1fr)); overflow-x: auto; }
+  .chart-scroll-hint { display: block; }
   .summary-grid { grid-template-columns: 1fr 1fr; }
   .solar-card { grid-column: span 2; min-height: 170px !important; }
   .dual-section { grid-template-columns: 1fr; gap: 0; }
@@ -305,17 +310,17 @@ footer p { margin: 0; font-family: "Ma Shan Zheng", cursive; font-size: 22px; le
   .birth-card { padding: 23px; }
   .field-row { grid-template-columns: 1fr; gap: 0; }
   .result-shell { padding: 54px 12px 80px; }
-  .result-layout { grid-template-columns: 104px minmax(0, 1fr); gap: 12px; }
-  .chart-nav { top: 8px; padding-top: 12px; }
+  .result-layout { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .chart-nav { position: static; padding-top: 12px; }
   .chart-nav-heading { padding: 0 7px 11px; }
   .chart-nav-heading span { font-size: 12px; letter-spacing: .06em; }
-  .chart-nav-heading small, .chart-nav-group > p, .chart-nav a i, .chart-nav a small { display: none; }
-  .chart-nav-group { padding-top: 8px; }
-  .chart-nav a { min-height: 34px; padding: 6px 7px; display: block; overflow: hidden; font-size: 11px; text-overflow: ellipsis; }
+  .chart-nav-heading small, .chart-nav-group > p, .chart-nav a i { display: none; }
+  .chart-nav-group { display: flex; flex-wrap: wrap; gap: 4px; padding: 8px 0 0; }
+  .chart-nav a { min-height: 40px; padding: 6px 10px; display: flex; font-size: 12px; }
   .result-heading, .section-heading { align-items: start; flex-direction: column; }
   .chart-meta { text-align: left; }
   .result-side { justify-items: start; }
-  .chart-stage { grid-template-columns: repeat(4, minmax(130px, 1fr)); padding: 38px 12px 25px; overflow-x: auto; }
+  .chart-stage { padding: 38px 12px 25px; }
   .pillar { min-height: 375px; padding: 0 12px 18px; }
   .pillar-gz { font-size: 58px; }
   .summary-grid { grid-template-columns: 1fr; }

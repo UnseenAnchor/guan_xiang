@@ -8,3 +8,5 @@ __pycache__/
 docs/REVERSE-NOTES.md
 # 本地 Agent skills（ui-skills 等本地工具包）不上传 GitHub。
 /.pi/
+# 本地 UI 审查与验证过程资料。
+/design-plans/
