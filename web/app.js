@@ -76,7 +76,10 @@ function initializeChapterNav() {
     const target = document.querySelector(link.getAttribute('href'));
     if (!target) return;
     setActive(target.id);
-    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    target.scrollIntoView({
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+      block: 'start',
+    });
     history.replaceState(null, '', link.hash);
   }));
   if (!('IntersectionObserver' in window)) return;
@@ -326,7 +329,10 @@ form.addEventListener('submit', async (event) => {
         item.style.animationDelay = `${Math.min(index * 70, 350)}ms`;
         requestAnimationFrame(() => item.classList.add('visible'));
       });
-      resultShell.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      resultShell.scrollIntoView({
+        behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+        block: 'start',
+      });
     });
   } catch (error) {
     statusLine.textContent = error.message;
@@ -603,7 +609,7 @@ function renderElements(chart) {
   const max = Math.max(...Object.values(counts).map((item) => item.total), 1);
   const container = document.querySelector('#element-balance');
   container.innerHTML = `
-    <div class="element-table-head"><span>五行</span><span>结构占比</span><span>天干</span><span>地支</span><span>藏干</span><span>合计</span></div>
+    <div class="element-table-head"><span>五行</span><span>数量对比</span><span>天干</span><span>地支</span><span>藏干</span><span>合计</span></div>
     ${elementOrder.map((element) => {
       const item = counts[element];
       return `<div class="element-row element-row-complete" style="--element-color:${ELEMENT_COLORS[element]}">

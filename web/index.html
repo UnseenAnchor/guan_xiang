@@ -125,10 +125,11 @@
         <div><p class="section-kicker">命盘总览 / CHART</p><h2 id="chart-title"></h2></div>
         <div class="result-side"><div class="chart-meta" id="chart-meta"></div><div class="export-actions" aria-label="导出命盘"><button type="button" data-export="md">导出 MD</button><button type="button" data-export="txt">导出 TXT</button></div></div>
       </div>
-      <div class="chart-stage reveal" id="pillar-chart"></div>
+      <p class="chart-scroll-hint" id="pillar-scroll-hint">窄屏可横向滚动查看完整四柱，键盘聚焦后可用左右方向键。</p>
+      <div class="chart-stage reveal" id="pillar-chart" role="region" aria-label="四柱命盘" aria-describedby="pillar-scroll-hint" tabindex="0"></div>
       <section class="summary-grid reveal" aria-label="命盘摘要">
         <article class="day-master-card"><p>日主 · 命元</p><div class="day-master-content"><strong id="day-master"></strong><div><b id="day-master-element"></b><span>以日干为我，统观全局</span></div></div><div class="mini-facts" id="mini-facts"></div></article>
-        <article class="element-card" id="section-elements"><div class="article-title"><p>五行观测</p><small>含四柱与藏干</small></div><div id="element-balance" class="element-balance"></div><p class="card-caption">数量仅作结构展示，不等同于身强弱或喜用神判断。</p></article>
+        <article class="element-card" id="section-elements"><div class="article-title"><p>五行观测</p><small>含四柱与藏干</small></div><div id="element-balance" class="element-balance"></div><p class="card-caption">数量仅作结构计数；条长按本盘最大计数归一化，不等同于身强弱或喜用神判断。</p></article>
         <article class="solar-card" id="solar-card"><div class="sun-mark" aria-hidden="true">日</div><p id="time-mode-title">排盘口径</p><div class="solar-time"><span id="solar-original">—</span><i></i><strong id="solar-corrected">—</strong></div><p class="correction" id="solar-correction"></p><div class="solar-comparison" id="solar-comparison" hidden></div></article>
       </section>
       <section class="content-section reveal" id="section-relations"><div class="section-heading"><div><p class="section-kicker">气的牵引 / RELATIONS</p><h2>刑冲合会</h2></div><p>四柱之间的结合、冲动与会聚关系</p></div><div class="relation-list" id="relation-list"></div></section>

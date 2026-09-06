@@ -92,10 +92,40 @@ class FrontendContractTests(unittest.TestCase):
         self.assertNotIn('id="section-ai"', html)
         self.assertIn("function initializeChapterNav()", script)
         self.assertIn("event.preventDefault()", script)
-        self.assertIn("target.scrollIntoView({ behavior: 'smooth', block: 'start' })", script)
+        self.assertIn("target.scrollIntoView({", script)
+        self.assertIn("window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'", script)
         self.assertIn("history.replaceState(null, '', link.hash)", script)
         self.assertIn("main { overflow-x: clip; }", styles)
         self.assertNotIn("main { overflow: hidden; }", styles)
+
+    def test_pillar_scroll_region_is_named_and_keyboard_reachable(self):
+        html = (ROOT / "web" / "index.html").read_text(encoding="utf-8")
+        tag = re.search(r'<div[^>]*id="pillar-chart"[^>]*>', html).group(0)
+        self.assertIn('tabindex="0"', tag)
+        self.assertIn('role="region"', tag)
+        self.assertIn('aria-label="四柱命盘"', tag)
+        self.assertIn('aria-describedby="pillar-scroll-hint"', tag)
+        self.assertIn('id="pillar-scroll-hint"', html)
+
+    def test_element_copy_describes_counts_not_population_percentages(self):
+        html = (ROOT / "web" / "index.html").read_text(encoding="utf-8")
+        script = (ROOT / "web" / "app.js").read_text(encoding="utf-8")
+        self.assertIn('<span>数量对比</span>', script)
+        self.assertNotIn('结构占比', script)
+        self.assertIn('条长按本盘最大计数归一化', html)
+        self.assertIn('不等同于身强弱或喜用神判断', html)
+
+    def test_responsive_directory_keeps_all_eight_unique_targets(self):
+        html = (ROOT / "web" / "index.html").read_text(encoding="utf-8")
+        nav = re.search(r'<nav class="chart-nav"[^>]*>(.*?)</nav>', html, re.S).group(1)
+        targets = re.findall(r'href="#([^"]+)"', nav)
+        self.assertEqual(targets, [
+            'section-overview', 'section-elements', 'section-relations',
+            'section-cycles', 'annual-section', 'section-symbols',
+            'section-references', 'section-experimental',
+        ])
+        for target in targets:
+            self.assertEqual(html.count(f'id="{target}"'), 1)
 
     def test_chart_has_local_exports_and_no_ai_layer(self):
         html = (ROOT / "web" / "index.html").read_text(encoding="utf-8")
