@@ -6,7 +6,7 @@ Windows 上的四柱排盘工具。离线运行，不需要账号。
 
 ## 下载
 
-在 [Releases](https://github.com/UnseenAnchor/guan_xiang/releases/latest) 下载 `观象.exe`，双击运行。
+在 [Releases](https://github.com/UnseenAnchor/guan_xiang/releases/latest) 下载 `GuanXiang.exe`，双击运行。
 
 ## 功能
 
