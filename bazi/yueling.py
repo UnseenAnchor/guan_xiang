@@ -20,9 +20,6 @@ def yueling_duanyu(rigan, yuezhi):
         return key, d[key]
     return key, None
 
-def all_titles():
-    return list(_load().keys())
-
 if __name__ == '__main__':
     for g, z in [('甲', '寅'), ('丙', '午'), ('庚', '申'), ('癸', '丑')]:
         t, body = yueling_duanyu(g, z)

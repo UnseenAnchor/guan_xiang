@@ -10,7 +10,7 @@ geju.py — 格局喜忌 (对齐 app UfGeJuXiJi)
 - 旺衰框架: 得令/得地/得势三主维 (主流共识; 权重为流派选择)
 ⚠ 权重细节为流派主观选择, 与 app 输出细节需真机对比
 """
-from .ganzhi import GAN, ZHI, gan_wuxing, zhi_wuxing, zhi_canggan, zhi_canggan_wuxing, shishen
+from .ganzhi import gan_wuxing, zhi_wuxing, zhi_canggan, zhi_canggan_wuxing, shishen
 
 # ---------- 五行旺衰 (月令旺相休囚死) ----------
 # 日主五行 -> {月支五行: 状态}

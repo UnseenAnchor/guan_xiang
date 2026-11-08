@@ -3,20 +3,13 @@
 engine.py — 八字排盘主引擎
 结合: lunar-python (标准历法/节气/大运) + 内置知识库 (十神/纳音/长生/神煞/断语)
 """
-from lunar_python import Solar, Lunar, EightChar
+from lunar_python import Solar, Lunar
 import datetime as _dt
 import os
-from .ganzhi import (GAN, ZHI, shishen, nayin, nayin_jian, xunkong, shier_changsheng,
+from .ganzhi import (ZHI, shishen, nayin, nayin_jian, xunkong, shier_changsheng,
                      zhi_canggan, zhi_canggan_wuxing, zhi_shengxiao, gan_wuxing, gan_yinyang,
                      zhi_wuxing, zhi_yinyang, tian_gan_he, di_zhi_he, di_zhi_chong, JIAZI)
-from .shensha import query_shensha, season
-
-GAN_CN = GAN
-ZHI_CN = ZHI
-
-def solar_to_lunar(y, m, d, h=12, mi=0, s=0):
-    """公历 -> lunar-python Lunar 对象"""
-    return Solar.fromYmdHms(y, m, d, h, mi, s).getLunar()
+from .shensha import query_shensha
 
 def pillars_from_lunar(lunar):
     """从 Lunar 取四柱 (含藏干/十神等)"""
@@ -205,16 +198,6 @@ def build_chart(y, m, d, h, mi=0, s=0, sex=1, **kwargs):
     result['真太阳时'] = solar_info
 
     return result
-
-def _month_index(ec):
-    """取节气月序号 (1-12)"""
-    try:
-        s = ec.getMonth()
-        for i, gz in enumerate(JIAZI):
-            pass
-    except Exception:
-        return 1
-    return 1
 
 def render_text(chart):
     """命盘 -> 文本"""

@@ -1,0 +1,23 @@
+# 构建与测试产物
+/build/
+/.testdata/
+/.testwin/
+/.testsmoke/
+/.tmpx/
+/.tmpicon/
+/.release-*/
+/winres-extract/
+
+# 本机验证截图只保留文档需要的几张，避免提交桌面、浏览器等无关画面。
+/evidence/*
+!/evidence/README.md
+!/evidence/brand-512.png
+!/evidence/ui-dark-1440.png
+!/evidence/ui-light-1440.png
+!/evidence/ui-structure.png
+!/evidence/ui-verification.json
+*.db
+*.db-shm
+*.db-wal
+*.log
+__pycache__/

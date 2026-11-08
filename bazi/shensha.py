@@ -3,7 +3,7 @@
 shensha.py — 神煞查法
 规则来源: 内置神煞知识库查法说明 + 传统标准查法
 """
-from .ganzhi import GAN, ZHI, nayin, xunkong, zhi_index
+from .ganzhi import ZHI, xunkong, zhi_index
 
 # ---------- 标准查法表 ----------
 # 天乙贵人: 日/年干 -> 地支 (阴贵/阳贵合并)

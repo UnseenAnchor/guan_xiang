@@ -1,0 +1,16 @@
+{
+  "name": "观象 · 本地命盘",
+  "short_name": "观象",
+  "description": "纯本地、免登录、完全离线的四柱排盘桌面客户端",
+  "lang": "zh-CN",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f9f9f7",
+  "theme_color": "#D97757",
+  "icons": [
+    { "src": "/brand/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/brand/icon-256.png", "sizes": "256x256", "type": "image/png" },
+    { "src": "/brand/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

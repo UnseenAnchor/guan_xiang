@@ -1,8 +1,17 @@
-Offline administrative place data is derived from:
+Offline administrative place data (web/locations.json) is derived from:
 
 AreaCity-JsSpider-StatsGov
 https://github.com/xiangyuecn/AreaCity-JsSpider-StatsGov
-Dataset version: 2025.251231.260403
+Dataset version: 2025.251231.260403 (released 2026-04-03)
+Derived file: web/locations.json — 3257 条（省/市/区三级），由 scripts/build_locations.py
+从上游 ok_geo.csv 提取 id / 名称 / 路径 / 经纬度，不含边界几何。
+
+Upstream states that this dataset is itself aggregated from:
+  - 国家地名信息库 2025-12-31（民政部）
+  - 高德地图行政区划（采集当天）
+  - 腾讯地图行政区划 2025-11-19
+If you redistribute this dataset beyond the MIT terms below, also review the terms of
+those upstream data providers.
 
 MIT License
 

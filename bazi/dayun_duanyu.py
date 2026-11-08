@@ -12,14 +12,9 @@ with open(os.path.join(_HERE, '..', 'knowledge', 'serjson.json'), encoding='utf-
     SER = json.load(_file)
 SSXX = SER['ssxx']
 SWK = SER['swk']
-with open(os.path.join(_HERE, '..', 'knowledge', 'cn_pure.json'), encoding='utf-8') as _file:
-    PURE = json.load(_file)
 
 def _strip(t):
     return re.sub(r'<@font\|[^>]*?/@>', '', t).replace('\\n', ' ').strip()
-
-# 性格断语池 (供运/年吉凶描述)
-XINGGE_POOL = [s for s in PURE if re.match(r'^(一生|为人|主)', s)]
 
 def dayun_duanyu(rigan, dayun_gz, sex=1):
     """

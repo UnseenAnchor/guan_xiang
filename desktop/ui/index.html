@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-mode="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="light dark" />
+<meta name="theme-color" content="#D97757" />
+<meta name="application-name" content="观象" />
+<meta name="apple-mobile-web-app-title" content="观象" />
+<meta name="description" content="观象：纯本地、免登录、完全离线的四柱排盘桌面客户端" />
+<title>观象 · 本地命盘</title>
+<link rel="icon" href="/favicon.ico" sizes="any" />
+<link rel="icon" type="image/png" sizes="32x32" href="brand/icon-32.png" />
+<link rel="icon" type="image/png" sizes="256x256" href="brand/icon-256.png" />
+<link rel="apple-touch-icon" href="brand/icon-192.png" />
+<link rel="manifest" href="/manifest.webmanifest" />
+<link rel="stylesheet" href="cds-theme.css" />
+<link rel="stylesheet" href="app.css" />
+</head>
+<body>
+<svg class="sprite" aria-hidden="true" focusable="false">
+  <symbol id="i-plus" viewBox="0 0 16 16"><path d="M8 3v10M3 8h10" /></symbol>
+  <symbol id="i-search" viewBox="0 0 16 16"><circle cx="7" cy="7" r="4.2" /><path d="M10.2 10.2 14 14" /></symbol>
+  <symbol id="i-trash" viewBox="0 0 16 16"><path d="M3 5h10M6.5 5V3.4h3V5M4.6 5l.6 8h5.6l.6-8" /></symbol>
+  <symbol id="i-save" viewBox="0 0 16 16"><path d="M3.4 3.4h7.4l2 2v7.2H3.4z" /><path d="M5.6 3.4v3.4h4.6V3.4M5.6 12.6V9.4h4.8v3.2" /></symbol>
+  <symbol id="i-download" viewBox="0 0 16 16"><path d="M8 3v7.2M5 7.6 8 10.6l3-3M3.4 12.6h9.2" /></symbol>
+  <symbol id="i-moon" viewBox="0 0 16 16"><path d="M12.7 9.6A5.2 5.2 0 0 1 6.4 3.3a5.4 5.4 0 1 0 6.3 6.3z" /></symbol>
+  <symbol id="i-sun" viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.7" /><path d="M8 1.6v1.6M8 12.8v1.6M1.6 8h1.6M12.8 8h1.6M3.5 3.5l1.1 1.1M11.4 11.4l1.1 1.1M12.5 3.5l-1.1 1.1M4.6 11.4l-1.1 1.1" /></symbol>
+  <symbol id="i-info" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.6" /><path d="M8 7.2v4M8 5.1v.1" /></symbol>
+  <symbol id="i-close" viewBox="0 0 16 16"><path d="M4 4l8 8M12 4l-8 8" /></symbol>
+  <symbol id="i-chevron" viewBox="0 0 16 16"><path d="M5 6.5 8 9.5l3-3" /></symbol>
+  <symbol id="i-pen" viewBox="0 0 16 16"><path d="M11.4 2.9l1.7 1.7-8 8-2.3.6.6-2.3z" /></symbol>
+  <symbol id="i-spark" viewBox="0 0 16 16"><path d="M8 2.2l1.3 3.6 3.6 1.3-3.6 1.3L8 12l-1.3-3.6L3.1 7.1l3.6-1.3z" /></symbol>
+  <symbol id="i-menu" viewBox="0 0 16 16"><path d="M2.6 4.5h10.8M2.6 8h10.8M2.6 11.5h10.8" /></symbol>
+  <symbol id="i-arrow" viewBox="0 0 16 16"><path d="M3.5 8h8M8.6 4.6 12 8l-3.4 3.4" /></symbol>
+</svg>
+
+<div class="app">
+  <aside class="sidebar" aria-label="历史命盘">
+    <div class="brand">
+      <div class="brand-text">
+        <strong>观象</strong>
+        <span class="brand-sub">本地命盘 · 离线</span>
+      </div>
+      <span class="pill pill-soft" id="version-pill">v1.0.0</span>
+    </div>
+
+    <div class="sidebar-actions">
+      <button class="btn btn-primary btn-block" id="new-chart" type="button">
+        <svg class="icon"><use href="#i-plus" /></svg>新建排盘
+      </button>
+      <label class="search">
+        <svg class="icon"><use href="#i-search" /></svg>
+        <input id="history-search" type="search" placeholder="搜索姓名、干支、农历" aria-label="搜索历史" />
+      </label>
+    </div>
+
+    <div class="history-head">
+      <span>历史记录</span>
+      <span class="muted" id="history-count">0</span>
+    </div>
+    <nav class="history-list" id="history-list" aria-live="polite"></nav>
+    <p class="history-empty" id="history-empty">
+      还没有保存的命盘。<br />排盘后点右上角「保存」，记录会写进本机 SQLite。
+    </p>
+
+    <footer class="sidebar-footer">
+      <div class="local-note" id="local-note" title="">
+        <svg class="icon"><use href="#i-info" /></svg>
+        <span>数据仅存本机，无账号、无联网</span>
+      </div>
+      <div class="sidebar-foot-row">
+        <div class="segmented segmented-sm" id="theme-seg" role="radiogroup" aria-label="外观">
+          <span class="segmented-thumb" aria-hidden="true"></span>
+          <label><input type="radio" name="theme" value="light" checked /><span>浅色</span></label>
+          <label><input type="radio" name="theme" value="dark" /><span>深色</span></label>
+        </div>
+        <button class="icon-btn" id="about-btn" type="button" title="关于" aria-label="关于">
+          <svg class="icon"><use href="#i-spark" /></svg>
+        </button>
+      </div>
+    </footer>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <button class="icon-btn sidebar-toggle" id="sidebar-toggle" type="button" aria-label="打开历史记录" style="display:none">
+        <svg class="icon"><use href="#i-menu" /></svg>
+      </button>
+      <div class="topbar-title">
+        <h1 id="page-title">新建命盘</h1>
+        <p id="page-sub" class="muted">本地四柱排盘与传统命理参照，不宣称任何确定性结论。</p>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-ghost" id="export-md" type="button" title="导出 Markdown" aria-label="导出 Markdown" disabled>
+          <svg class="icon"><use href="#i-download" /></svg><span class="btn-text">导出 MD</span>
+        </button>
+        <button class="btn btn-ghost" id="export-txt" type="button" title="导出纯文本" aria-label="导出纯文本" disabled>
+          <svg class="icon"><use href="#i-download" /></svg><span class="btn-text">导出 TXT</span>
+        </button>
+        <button class="btn btn-secondary" id="save-chart" type="button" title="保存到本地历史" aria-label="保存到本地历史" disabled>
+          <svg class="icon"><use href="#i-save" /></svg><span class="btn-text">保存到历史</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="scroll" id="scroll">
+      <section class="composer-wrap" id="composer-wrap">
+        <form class="composer" id="chart-form" autocomplete="off" novalidate>
+          <div class="composer-top">
+            <div class="segmented" id="calendar-seg" role="radiogroup" aria-label="历法">
+              <span class="segmented-thumb" aria-hidden="true"></span>
+              <label><input type="radio" name="calendar" value="solar" checked /><span>公历</span></label>
+              <label><input type="radio" name="calendar" value="lunar" /><span>农历</span></label>
+            </div>
+            <div class="segmented" id="sex-seg" role="radiogroup" aria-label="性别">
+              <span class="segmented-thumb" aria-hidden="true"></span>
+              <label><input type="radio" name="sex" value="1" checked /><span>男</span></label>
+              <label><input type="radio" name="sex" value="0" /><span>女</span></label>
+            </div>
+            <label class="field field-grow">
+              <span class="field-label">姓名 / 标签<em>选填</em></span>
+              <input id="chart-name" type="text" maxlength="40" placeholder="例如：张三" />
+            </label>
+          </div>
+
+          <div class="composer-grid" id="solar-fields">
+            <label class="field">
+              <span class="field-label">出生年</span>
+              <input id="solar-year" type="number" inputmode="numeric" min="1900" max="2099" value="1990" />
+            </label>
+            <label class="field">
+              <span class="field-label">月</span>
+              <input id="solar-month" type="number" inputmode="numeric" min="1" max="12" value="5" />
+            </label>
+            <label class="field">
+              <span class="field-label">日</span>
+              <input id="solar-day" type="number" inputmode="numeric" min="1" max="31" value="15" />
+            </label>
+            <label class="field">
+              <span class="field-label">时间<em>24 小时制</em></span>
+              <input id="birth-time" type="time" value="10:30" step="60" />
+            </label>
+          </div>
+
+          <div class="composer-grid" id="lunar-fields" hidden>
+            <label class="field">
+              <span class="field-label">农历年</span>
+              <input id="lunar-year" type="number" inputmode="numeric" min="1900" max="2099" value="1990" />
+            </label>
+            <label class="field">
+              <span class="field-label">月</span>
+              <select id="lunar-month"></select>
+            </label>
+            <label class="field">
+              <span class="field-label">日</span>
+              <select id="lunar-day"></select>
+            </label>
+            <label class="field">
+              <span class="field-label">时间<em>24 小时制</em></span>
+              <input id="lunar-time" type="time" value="10:30" step="60" />
+            </label>
+          </div>
+
+          <div class="composer-extra">
+            <button class="disclosure" id="extra-toggle" type="button" aria-expanded="false">
+              <svg class="icon chevron"><use href="#i-chevron" /></svg>
+              出生地与真太阳时 <span class="muted">（选填，默认关闭）</span>
+            </button>
+            <div class="extra-body" id="extra-body" hidden>
+              <label class="field">
+                <span class="field-label">出生地经度<em>东经为正，如北京 116.4</em></span>
+                <input id="longitude" type="number" inputmode="decimal" step="0.01" min="-180" max="180" placeholder="未填写" />
+              </label>
+              <label class="switch">
+                <input id="true-solar" type="checkbox" disabled />
+                <span class="switch-track" aria-hidden="true"><span class="switch-thumb"></span></span>
+                <span class="switch-label">启用真太阳时校正<em id="true-solar-hint">需先填写经度；未启用时不会把经度传给排盘引擎</em></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="composer-foot">
+            <p class="composer-hint" id="form-hint">五行数量只作结构计数，不代表旺衰或喜用。</p>
+            <button class="btn btn-primary btn-lg" id="submit-btn" type="submit">
+              <span class="btn-label">排盘</span>
+              <svg class="icon"><use href="#i-arrow" /></svg>
+            </button>
+          </div>
+          <div class="thinking" id="thinking" hidden aria-live="polite">
+            <span class="thinking-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+            正在排盘…
+          </div>
+        </form>
+      </section>
+
+      <section class="empty" id="empty-state">
+        <div class="empty-mark" aria-hidden="true"><img src="brand/icon.svg" width="44" height="44" alt="" /></div>
+        <h2>从一次排盘开始</h2>
+        <p>填写上方生辰即可得到四柱、藏干十神、大运流年与古籍参照。所有计算在本机完成，历史记录保存在本地 SQLite。</p>
+        <ul class="empty-list">
+          <li><span class="dot" aria-hidden="true"></span>无需登录、无需网络</li>
+          <li><span class="dot" aria-hidden="true"></span>真太阳时默认关闭，口径显式标注</li>
+          <li><span class="dot" aria-hidden="true"></span>古籍参照与规则推演分层呈现</li>
+        </ul>
+      </section>
+
+      <section class="result" id="result" hidden aria-live="polite"></section>
+
+      <footer class="page-foot">
+        <span>观象桌面版 · 本地离线</span>
+        <span class="muted">排盘引擎：Go + lunar-go；界面参考 open-claude-ui 设计令牌</span>
+      </footer>
+    </div>
+  </main>
+</div>
+
+<div class="modal-root" id="modal-root" hidden></div>
+<div class="toast-root" id="toast-root" aria-live="polite"></div>
+<script src="app.js"></script>
+</body>
+</html>

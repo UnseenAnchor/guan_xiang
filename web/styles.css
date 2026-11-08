@@ -138,9 +138,6 @@ main { overflow-x: clip; }
 .segmented label + label span { border-left: 1px solid var(--line); }
 .segmented input:checked + span { color: var(--paper-light); background: var(--jade); }
 .text-button { float: right; padding: 0; color: var(--cinnabar); background: none; border: 0; cursor: pointer; font-size: 10px; }
-.longitude-input { position: relative; }
-.longitude-input input { padding-right: 42px; }
-.longitude-input small { position: absolute; right: 14px; top: 15px; color: var(--ink-soft); }
 .field-help { display: none !important; margin: 8px 0 0 !important; line-height: 1.7; letter-spacing: .03em !important; }
 .field-help.visible { display: block !important; }
 .submit-button { width: 100%; height: 54px; margin-top: 4px; padding: 0 18px; display: flex; justify-content: space-between; align-items: center; color: #fff9ef; background: var(--cinnabar); border: 0; cursor: pointer; font-weight: 700; letter-spacing: .15em; transition: background .25s, transform .25s; }
@@ -247,7 +244,6 @@ main { overflow-x: clip; }
 .cycle-track { display: flex; overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--cinnabar) transparent; scroll-snap-type: x proximity; }
 .cycle { position: relative; flex: 0 0 138px; min-height: 175px; padding: 24px 18px; border-right: 1px solid var(--line); scroll-snap-align: start; transition: background .2s; }
 .cycle:hover, .cycle.active { background: rgba(169,54,40,.06); }
-.cycle-index { color: var(--ink-soft); font-size: 10px; letter-spacing: .12em; }
 .cycle strong { display: block; margin: 16px 0; font-size: 27px; }
 .cycle p { margin: 0; color: var(--ink-soft); font-size: 10px; line-height: 1.8; }
 .cycle.active::after { content: ""; position: absolute; left: 18px; right: 18px; bottom: 0; height: 3px; background: var(--cinnabar); }

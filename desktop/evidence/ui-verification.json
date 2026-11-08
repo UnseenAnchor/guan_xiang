@@ -1,0 +1,22 @@
+{
+ "base": "http://127.0.0.1:8801",
+ "console_errors": [],
+ "request_count": 37,
+ "external_requests": [],
+ "failures": [],
+ "screenshots": [
+  "ui-about.png",
+  "ui-brand-dark.png",
+  "ui-brand-light.png",
+  "ui-dark-1440.png",
+  "ui-dayun.png",
+  "ui-history-1440.png",
+  "ui-light-1440.png",
+  "ui-mobile-390.png",
+  "ui-mobile-drawer-390.png",
+  "ui-notes-expanded.png",
+  "ui-notices.png",
+  "ui-shensha.png",
+  "ui-structure.png"
+ ]
+}
