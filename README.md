@@ -2,7 +2,7 @@
 
 观象是一款在 Windows 上离线运行的四柱排盘软件。无须注册或登录，排盘和历史记录都在本机完成。
 
-![观象桌面版，空白历史记录](docs/screenshot-desktop-empty.png)
+![观象桌面版，空白历史记录](https://raw.githubusercontent.com/UnseenAnchor/guan_xiang/main/docs/screenshot-desktop-empty.png)
 
 ## 下载
 
